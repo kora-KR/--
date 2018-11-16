@@ -1,0 +1,76 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{margin-bottom: ~'20rpx'; background: #fff}
+  .grad_icon{margin-right: ~'12rpx'; width: ~'32rpx'; height: ~'32rpx'}
+  .grad_txt{display: flex; justify-content: flex-start; align-items: center; padding: ~'0 30rpx'; box-sizing: border-box; height: ~'100rpx'; font-size: ~'32rpx'; font-weight: 600}
+  .all>.grad_txt:nth-of-type(1){border-bottom: @line_border}
+  .grad_txt_add{height: ~'132rpx'}
+  .grad_txt_add>view:nth-of-type(1){margin-right: ~'20rpx'; width: ~'72rpx'; line-height: ~'72rpx'; border-radius: ~'8rpx'; text-align: center; font-size: ~'50rpx'; font-weight: bold; color: #fff; font-family: DIN}
+  .grad_txt_add>view:nth-of-type(2){position: relative; font-size: ~'32rpx'; font-weight: 500}
+  /*.grad_txt_add_coin>text:nth-of-type(1){}*/
+  .limit_ok{margin-right: ~'8rpx'; font-size: ~'50rpx'; font-weight: bold; font-family: DIN; color: @res_txt_color}
+  .limit_no{margin-right: ~'8rpx'; font-size: ~'30rpx'; font-family: DIN; color: #666}
+  .grad_txt_add_coin>text:nth-of-type(2){position: relative; top: ~'5rpx'; font-size: ~'32rpx'; color: @res_txt_color}
+</style>
+
+<template>
+  <view class="all">
+    <view class="grad_txt">
+      <image class="grad_icon" src="{{iconTip1}}"></image>
+      <text>企业信用等级</text>
+    </view>
+    <view class="grad_txt grad_txt_add">
+      <view style="background: {{gradBg}}">{{company.company_level}}</view>
+      <view>{{company.company_level}}级: {{gradTip}}</view>
+    </view>
+  </view>
+
+  <view class="all">
+    <view class="grad_txt">
+      <image class="grad_icon" src="{{iconTip2}}"></image>
+      <text>企业信用额度</text>
+    </view>
+    <view class="grad_txt grad_txt_add grad_txt_add_coin">
+      <text class="{{((company.credit_line == -1) || (company.credit_line == null))?'limit_no':'limit_ok'}}">{{((company.credit_line == -1) || (company.credit_line == null))?'暂无':company.credit_line}}</text><text style="opacity: {{((company.credit_line == '-1') || (company.credit_line == null))?0:1}}">万元</text>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class creditFileGrad extends wepy.component {
+    data = {
+      iconTip1: base_static + 'icon_archives_1.png',
+      iconTip2: base_static + 'icon_archives_2.png',
+      gradBg: '',
+    }
+    props = {
+      company: {
+        type: Object,
+        twoWay: true
+      },
+      gradBg: {
+        type: String,
+        twoWay: true
+      },
+      gradTip: {
+        type: String,
+        twoWay: true
+      }
+    }
+    components = {
+    }
+
+    methods = {
+
+    }
+
+    onLoad() {}
+  }
+
+</script>

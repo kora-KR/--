@@ -1,0 +1,70 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{padding: ~'30rpx 30rpx 60rpx'; box-sizing: border-box; background: #fff}
+  .head_img{width: 100%; height: ~'360rpx'; box-shadow: ~'0 6rpx 12rpx 0 rgba(151, 133, 136, .5)'; border-radius: ~'8rpx'}
+  .name{margin: ~'40rpx 0 20rpx'; font-size: ~'42rpx'; font-weight: 600}
+  .des{display: flex; justify-content: flex-start; align-items: center; padding-bottom: ~'30rpx'; box-sizing: border-box; border-bottom: @line_border}
+  .des>text{margin-right: ~'20rpx'; font-size: ~'24rpx'; color: #999}
+</style>
+<template>
+  <view class="all">
+    <view class="head_img" style="background: url('{{pro.headImg}}') no-repeat center center; background-size: cover"></view>
+    <view class="name">{{pro.cName}}</view>
+    <view class="des">
+      <text>{{pro.uName}}</text>
+      <text wx-if="{{pro.coin}}">{{pro.coin}}</text>
+      <text>成立{{pro.time}}</text>
+    </view>
+
+    <!--自定义图文混编-->
+    <repeat for="{{pro.pro}}" key="index" index="index" item="item">
+      <mix :item.sync="item"></mix>
+    </repeat>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import { inc } from '@/utils/incShow'
+  const base_static = config.static_url.static_base_v1;
+
+  import mix from '@/components/enterpriseDetailsMix'
+
+  export default class enterpriseDetails extends wepy.page {
+    config = {
+      navigationBarTitleText: ''
+    }
+    components = {mix}
+    mixins = [testMixin]
+    data = {
+      headImg: base_static + 'pic_monitor_title.png',
+      pro: [],
+      tip: ''
+    }
+    computed = {}
+    methods = {
+      onShareAppMessage() {
+        return {
+          title: '【文创青岛】' + this.pro.cName,
+          path: '/pages/index?tag=enterpriseDetails&tip=' + this.tip
+        }
+      }
+    }
+    events = {}
+    async onLoad(options) {
+      console.log(options, 888)
+      this.tip = options.tip
+      this.pro = inc(options.tip)
+      wepy.setNavigationBarTitle({
+        title: this.pro.cName
+      })
+      this.$apply()
+    }
+    onShow() {}
+  }
+</script>

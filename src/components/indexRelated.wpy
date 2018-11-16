@@ -1,0 +1,45 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  image{margin: ~'50rpx auto 0'; width: ~'206rpx'; height: ~'42rpx'}
+  view{margin-top: ~'14rpx'; font-size: ~'26rpx'; color: #c9bcbe; text-align: center}
+  view:nth-of-type(1){margin-top: ~'18rpx'}
+  .out{background: #F6F4F5}
+</style>
+
+<template>
+  <view calss="out">
+    <image src="{{tipImg}}"></image>
+    <view>中共青岛市委宣传部</view>
+    <view>中国人民银行青岛市中心支行</view>
+    <view>青岛市金融工作办公室</view>
+    <view>青岛银行股份有限公司</view>
+    <view>青岛格兰德信用管理咨询有限公司</view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  import menupro from '@/components/common/indexMenuPro'
+
+  export default class indexRelated extends wepy.component {
+    data = {
+      tipImg: base_static + 'pic_txt1.png'
+    }
+    props = {
+    }
+    components = {menupro}
+
+    methods = {
+
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

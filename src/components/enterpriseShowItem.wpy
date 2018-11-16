@@ -1,0 +1,35 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{width: ~'336rpx';}
+  .img{width: ~'336rpx'; height: ~'175rpx'; border-radius: ~'8rpx'}
+  .all .txt{padding-top: 17/@rpx; margin-bottom: 30/@rpx; width: 100%; height: 94/@rpx; line-height: 40/@rpx; box-sizing: border-box; font-size: ~'30rpx'; display: -webkit-box; overflow: hidden; text-overflow: ellipsis; word-wrap: break-word; white-space: pre-wrap; -webkit-line-clamp: 2; -webkit-box-orient: vertical;}
+</style>
+
+<template>
+ <view class="all">
+   <navigator url="/pages/enterpriseDetails?tip={{index}}">
+     <view class="img" style="background: url('{{item.img}}') no-repeat center center; background-size: cover"></view>
+     <view class="txt">{{item.txt}}</view>
+   </navigator>
+ </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class enterpriseShowItem extends wepy.component {
+    data = {}
+    props = {}
+    components = {}
+
+    methods = {}
+
+    onLoad() {
+    }
+  }
+
+</script>

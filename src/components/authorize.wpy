@@ -1,0 +1,68 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .authirize{position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; border: 0; background: transparent}
+</style>
+
+<template>
+  <button class="authirize" open-type="getUserInfo" hover-class="button-hover" @getuserinfo="bindGetUserInfo" hidden="{{loadBtn}}"></button>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import { tip } from '@/utils/tip'
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class authorize extends wepy.component {
+    data = {
+
+    }
+    props = {
+      loadBtn: {
+        type: Boolean,
+        twoWay: true
+      },
+      tip: {
+        type: String,
+        twoWay: true
+      }
+    }
+    components = {}
+
+    methods = {
+      async bindGetUserInfo(res) {
+        var that = this
+        if (res.detail.errMsg == "getUserInfo:ok") {
+          wepy.setStorage({
+            key: "loginKey",
+            data: "ok"
+          })
+          var par = res.detail;
+          var json = api.login_userinfo(par)
+          this.loadBtn = true
+          json.then(res => {console.log(res, 8585855)})
+          this.$apply()
+          await this.$emit('againLoad')
+          tip('登录成功', 'success')
+          console.log(this.tip, 999)
+          if(this.tip) {
+            wepy.navigateTo({
+              url: '/pages/credit?tip=' + this.tip
+            })
+          }
+        }
+        else {
+          console.log("用户拒绝咯~")
+        }
+        this.$apply()
+      }
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

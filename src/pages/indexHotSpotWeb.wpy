@@ -1,0 +1,53 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+</style>
+
+<template>
+  <web-view src="{{url}}"></web-view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+
+  export default class indexHotSpotWeb extends wepy.page {
+    config = {
+      navigationBarTitleText: ''
+    }
+    components = {}
+    mixins = [testMixin]
+    data = {
+      url: '',
+      flag: '',
+      urlHead: '',
+      newsId: '',
+      pName: '',
+      uid: ''
+    }
+    computed = {}
+    methods = {
+      onShareAppMessage() {
+        return {
+          title: this.flag,
+          path: '/pages/index?url=' + this.urlHead + '&newsId=' + this.newsId + '&pName=' + this.pName + '&uid=' + this.uid + '&tag=indexHotSpotWeb'
+        }
+      }
+    }
+    events = {}
+    onLoad(options) {
+      this.flag = options.flag
+
+      this.urlHead = options.url
+      this.newsId = options.newsId
+      this.pName = options.pName
+      this.uid = options.uid
+
+      console.log(options)
+      this.url = options.url + "?newsId=" + options.newsId + "&pName=" + options.pName + "&uid=" + options.uid
+      this.$apply()
+    }
+  }
+</script>

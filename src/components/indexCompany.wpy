@@ -1,0 +1,73 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{padding: ~'30rpx'; box-sizing: border-box; background: #fff}
+  .senior_scroll{ white-space: nowrap; overflow-x: hidden; height: ~'168rpx'; width: 100%; font-size: ~'24rpx';}
+  .scroll_item{position: relative; display: inline-block; margin-right: ~'20rpx'; width: ~'288rpx'; height: ~'168rpx'; border-radius: ~'15rpx'; color: #fff; text-align: center; overflow: hidden}
+
+  .scroll_item>image:nth-of-type(1){position: absolute; z-index: 10; left: 0; bottom: 0; width: ~'288rpx'; height: ~'64rpx'; border-radius: ~'0 0 15rpx 15rpx'}
+
+  .scroll_item>view{position: absolute; z-index: 88; bottom: ~'12rpx'; width: 100%; font-size: ~'26rpx'; color: #fff}
+  .scroll_item:nth-last-of-type(1){margin-right: 0}
+  .server_tip{display: flex; justify-content: space-between; align-items: center; margin-bottom: ~'30rpx'; box-sizing: border-box; background: #fff}
+  .server_tip>view:nth-of-type(1){font-size: ~'32rpx'; font-weight: 600}
+  .server_tip .more_icon{position: absolute; z-index: 88; right: 0; top: 50%; transform: translateY(-54%); width: ~'16rpx'; height: ~'24rpx'; opacity: .5}
+  .tip_more{display: flex; align-items: center; position: relative; width: ~'84rpx'; text-align: left; font-size: ~'26rpx'; color: #999}
+  .tip_more>text{position: relative; top: ~'-1rpx'; color: #999}
+  ::-webkit-scrollbar{ width: 0!important; height: 0!important; color: transparent!important;}
+</style>
+
+<template>
+  <view class="all">
+    <view class="server_tip">
+      <view>文创企业展示</view>
+      <view class="tip_more" @tap="handleClickFinacingMore">
+        <text>更多</text>
+        <image class="more_icon" src="{{moreIcon}}"></image>
+      </view>
+    </view>
+
+    <scroll-view class="senior_scroll" scroll-x>
+      <navigator class="scroll_item" wx:for="{{pro}}" wx:key="{{index}}" url="/pages/enterpriseDetails?tip={{index}}" style="background: url('{{item.img}}') no-repeat center center; background-size: cover">
+        <view>{{item.txt}}</view>
+        <image src="{{shadowImg}}"></image>
+      </navigator>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class indexCompany extends wepy.component {
+    data = {
+      shadowImg: base_static + 'pic_show_shadow.png',
+      moreIcon: base_static + 'icon_record_arrow.png',
+      pro: [
+        {img: base_static + 'company3_2.png', txt: '青岛奕雅思文化创意'},
+        {img: base_static + 'company6_0.jpg', txt: '北大青岛1898咖啡馆'},
+        {img: base_static + 'company5_0.jpeg', txt: '青岛千禧合生文化产业'},
+        {img: base_static + 'company2_0.jpeg', txt: '青岛鲸致互动娱乐'},
+        {img: base_static + 'company1_0.png', txt: '青岛佳熹纪念币设计'},
+        {img: base_static + 'company4_0.jpg', txt: '青岛超逸国际旅行社'}]
+    }
+    props = {}
+    components = {
+    }
+
+    methods = {
+      handleClickFinacingMore() {
+        wepy.navigateTo({
+          url: '/pages/enterpriseShow'
+        })
+      }
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

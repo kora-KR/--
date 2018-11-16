@@ -1,0 +1,61 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{padding: ~'45rpx 30rpx 41rpx'; box-sizing: border-box; background: #fff}
+  .all>view:nth-of-type(1){margin-bottom: ~'36rpx'; font-size: ~'40rpx'; line-height: ~'50rpx'; font-weight: 600; color: #333}
+</style>
+
+<template>
+  <view class="all">
+    <view>{{itemPro.txt1}}</view>
+    <!--<view>{{itemPro.txt2}}</view>-->
+
+    <!--自定义图文混编-->
+    <repeat for="{{itemPro.txt2}}" key="index" index="index" item="item">
+      <mix :item.sync="item"></mix>
+    </repeat>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  import know from "@/utils/knowledge.js";
+  const base_static = config.static_url.static_base_v1;
+
+  import mix from '@/components/creditLoreItemMix'
+
+  export default class creditLoreItem extends wepy.page {
+    config = {
+      navigationBarTitleText: '信用知库'
+    }
+    components = {mix}
+    mixins = [testMixin]
+    data = {
+      itemPro: ''
+    }
+    computed = {}
+    methods = {
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    events = {
+    }
+    async onLoad(options) {
+      var pro = know.know()
+      var i = options.tip
+      this.itemPro = pro[i]
+      this.$apply()
+    }
+    onShow() {
+    }
+  }
+</script>

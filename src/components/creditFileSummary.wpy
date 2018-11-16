@@ -1,0 +1,64 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{margin-bottom: ~'20rpx'; padding: ~'45rpx 30rpx 40rpx'; box-sizing: border-box; background: #fff}
+  .all>view:nth-of-type(1){margin-bottom: ~'25rpx'; line-height: ~'52rpx'; font-size: ~'40rpx'; font-weight: 600}
+  .all>view:not(:nth-of-type(1)){margin-top: ~'10rpx'; font-size: ~'26rpx'}
+  .all>view:nth-of-type(2){margin-top: ~'20rpx'}
+  .all>view:not(:nth-of-type(1))>text{line-height: ~'36rpx'}
+  .all>view:not(:nth-of-type(1))>text:nth-of-type(1){color: #666}
+</style>
+
+<template>
+  <view class="all">
+    <view>{{company.company_name?company.company_name:'--'}}</view>
+    <view>
+      <text>注册资本: </text>
+      <text>{{company.registered_capital?company.registered_capital:'--'}}{{(company.registered_capital && company.registered_capital_currency)?company.registered_capital_currency:''}}</text>
+    </view>
+    <view>
+      <text>成立时间: </text>
+      <text>{{company.founding_time?company.founding_time:'--'}}</text>
+    </view>
+    <view>
+      <text>统一社会信用代码: </text>
+      <text>{{company.credit_code?company.credit_code:'--'}}</text>
+    </view>
+    <view hidden="{{company.legal_man_lm?false:true}}">
+      <text>{{company.legal_man_lm}}: </text>
+      <text>{{company.legal_man?company.legal_man:'--'}}</text>
+    </view>
+    <view>
+      <text>注册地址: </text>
+      <text>{{company.registered_address?company.registered_address:'--'}}</text>
+    </view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class creditFileSummary extends wepy.component {
+    data = {
+
+    }
+    props = {
+      company: {
+        type: Object,
+        twoWay: true
+      }
+    }
+    components = {
+    }
+
+    methods = {
+
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

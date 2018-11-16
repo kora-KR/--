@@ -1,0 +1,47 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .out{background: #fff}
+  .lore_item{margin-top: ~'20rpx'; padding: ~'34rpx 30rpx 34rpx'; box-sizing: border-box}
+  .lore_item>view:nth-of-type(1){margin-bottom: ~'24rpx'; font-size: ~'34rpx'; line-height: ~'40rpx'; font-weight: 600; color: #333}
+  .lore_item>view:nth-of-type(2){display:-webkit-box; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-height: ~'40rpx'; font-size: ~'28rpx'; color: #333}
+</style>
+
+<template>
+  <view class="out">
+    <navigator url="/pages/creditLoreItem?tip={{index}}" class="lore_item">
+      <view>{{item.txt1}}</view>
+      <view>
+        <text wx:for="{{item.txt2}}" wx:key="{{item}}">{{item.txt}}</text>
+      </view>
+    </navigator>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class creditLoreItem extends wepy.component {
+    data = {
+
+    }
+    props = {
+      index: {
+        type: String,
+        twoWay: true
+      }
+    }
+    components = {
+    }
+
+    methods = {
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

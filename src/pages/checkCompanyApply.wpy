@@ -1,0 +1,229 @@
+<style src="../styles/resert.css"></style>
+<style lang="less">
+  @import '../styles/common';
+  .phcolor{color: #999}
+  .tip{ height: ~'86rpx'; font-size: ~'28rpx'; color: #666; padding: ~'36rpx 30rpx 0'; box-sizing: border-box; background: @line}
+  .myNews{ padding: ~'0 0 0 30rpx'; box-sizing: border-box; background: #fff}
+  .myNews>view{position: relative; left: 0; top: 0; display: flex; justify-content: flex-start; align-items: center; line-height: ~'90rpx'; height: ~'90rpx'}
+  .news{font-size: ~'32rpx'}
+  .news>view  {border-bottom: @line_border}
+  .news>view>text{ width: ~'180rpx'; color: #222;}
+  .news>view>input{ flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #999}
+  .newsAdd>view>input{color: #222}
+  .myNews .dollerTip{ margin-right: ~'30rpx'; box-sizing: border-box; width: ~'70rpx'; text-align: right}
+  .btnTip{ padding: ~'34rpx 30rpx 52rpx'; box-sizing: border-box; font-size: ~'26rpx'; text-align: left; color: #666}
+  .submit{position: fixed; bottom: ~'60rpx'; left: 50%; transform: translateX(-50%); width: ~'690rpx'; height: ~'88rpx'; line-height: ~'88rpx'; border-radius: ~'8rpx'; font-size: ~'34rpx'; background: rgb(226, 55, 51); color: #fff}
+  .int{ height: ~'40rpx'; width: 100%}
+  .myNews>view{position: relative}
+  .myNews image{ position: absolute; top: 50%; transform: translateY(-50%); right: ~'30rpx'; display: block; width: ~'16rpx'; height: ~'26rpx'}
+  .icon{ display: inline-block; margin-right: ~'22rpx'; height:~'45rpx'; box-sizing: border-box;}
+</style>
+
+<template>
+  <view style="{{formStyle}}">
+    <view class="myTip tip">填写需求</view>
+    <view class="myNews news newsAdd">
+      <view>
+        <text>目标企业</text>
+        <input placeholder-class="phcolor" placeholder='请输入目标企业名称' value='{{myNameV}}' @input='inputName'/>
+      </view>
+      <view>
+        <text>需求类型</text>
+        <input type="digit" value="{{needTip}}" disabled/>
+        <view class="dollerTip"></view>
+      </view>
+    </view>
+
+    <view class="myTip tip">填写联系方式</view>
+    <view class="myNews news newsAdd">
+      <view>
+        <text>联系人</text>
+        <input placeholder-class="phcolor" placeholder='请输入您的姓名' value='{{lationV}}' @input='inputLation'/>
+      </view>
+      <view>
+        <text>联系方式</text>
+        <input type="number" style='color: {{telTip}}' placeholder-class="phcolor" placeholder='请输入您的电话' style="color: {{telC}}" value="{{telV}}" @input='inputTel'/>
+      </view>
+      <view>
+        <text>邮箱</text>
+        <input placeholder-class="phcolor" style='flex: 1;color: {{coinTip}}' placeholder='请输入您的邮箱' value="{{emailV}}" style="color: {{emailC}}" @input='inputEmail'/>
+        <view class="dollerTip"></view>
+      </view>
+    </view>
+
+    <button class="submit" loading="{{loadingTip}}" @tap='handleClickSubmit' hover="true" hover-class="submitBtn" hover-stay-time="600" style="opacity: {{btnOpacity}}">提交申请</button>
+    <view class='int'></view>
+  </view>
+
+  <formtip :txt.sync="txt"></formtip>
+
+  <load :loadBtn.sync="loadBtn"></load>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import formtip from '@/components/formTip'
+  import load from '@/components/authorize'
+
+  export default class checkCompanyApply extends wepy.page {
+    config = {
+      navigationBarTitleText: '申请试用'
+    }
+    components = {formtip, load}
+    mixins = [testMixin]
+    data = {
+      loadBtn: false,
+      needTip: '企业基本信用报告',
+      needTipNum: '',
+      applyType: 0,
+      telC: '',
+      emailC: '',
+      btnOpacity: .6,
+      txt: '',
+      myNameV: "",
+      lationV: "",
+      telV: "",
+      emailV: ''
+    }
+    computed = {}
+    methods = {
+      inputName(e) {
+        this.myNameV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+      inputLation(e) {
+        this.lationV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+      inputTel(e) {
+        this.telV = e.detail.value, this.telTip = "#222"
+        this.telC = '#222'
+        this.$apply()
+        this.btnJudge()
+      },
+      inputEmail(e) {
+        this.emailV = e.detail.value, this.coinTip = "#222"
+        this.emailC = '#222'
+        this.$apply()
+        this.btnJudge()
+      },
+      handleClickSubmit() {
+        var that = this;
+        if (this.myNameV && this.lationV && this.telV && this.emailV) {
+          clearTimeout(a)
+          this.btnOpacity = .6
+          setTimeout(()=> {that.btnOpacity = 1, that.$apply()}, 600)
+          var zztel = /^(13[0-9]|14[5-9]|15[012356789]|166|17[0-8]|18[0-9]|19[8-9])[0-9]{8}$/
+          var zzemail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
+          if (this.telV.length <= 0 || this.telV.length > 11 || this.telV === 0 || !zzemail.test(this.emailV)) {
+            if (this.telV.length <= 0 || this.telV.length > 11 || this.telV === 0) {
+              this.txt = "请输入正确手机格式"
+              this.telC = '#E23733'
+            }
+            else {
+              this.txt = "请输入正确邮箱格式"
+              this.emailC = '#E23733'
+            }
+            this.$apply()
+            var a = setTimeout(()=> {that.txt = '', that.$apply()}, 1500)
+          }
+          else {
+            var par = {
+              data: {
+                company: this.myNameV,
+                email: this.emailV,
+                name: this.lationV,
+                phone: this.telV,
+                applytype: this.applyType,
+                reporttype: this.needTipNum
+              }
+            }
+            var json = api.apply_trial(par)
+            json.then(res=> {
+              console.log(res)
+            })
+            wepy.navigateTo({
+              url: '/pages/activateTip?tip=repair'
+            })
+          }
+        }
+        else {
+        }
+        this.$apply()
+      },
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    btnJudge() {
+      if (this.myNameV != '' && this.lationV != '' && this.telV != '' && this.emailV != '') {this.btnOpacity = 1}
+      else {this.btnOpacity = .6}
+      this.$apply()
+    }
+    events = {}
+    async onLoad(options) {
+      var loginKey = wepy.getStorage({
+        key: "loginKey"
+      })
+      loginKey.then(res => {
+        if(res.errMsg == "getStorage:ok") {
+          this.loadBtn = true
+          this.$apply()
+          console.log("之前来过，在我心里~")
+        }
+      }, () => {
+        this.loadBtn = false
+        this.$apply()
+        console.log("用户未点击授权哟~")
+      })
+
+      var tip = options.tip
+      if(tip == 'monitor'){
+        this.needTip = '企业信用监控报告'
+        this.needTipNum = 99
+        this.applyType = 1
+      }
+      else if(tip == 1){
+        this.needTip = '企业基本信用报告'
+        this.needTipNum = 1
+      }
+      else if(tip == 2){
+        this.needTip = '企业关注报告'
+        this.needTipNum = 13
+      }
+      else if(tip == 3){
+        this.needTip = '进出口记录报告'
+        this.needTipNum = 12
+      }
+      else if(tip == 4){
+        this.needTip = '企业关联报告'
+        this.needTipNum = 2
+      }
+      else if(tip == 5){
+        this.needTip = '高管关联报告'
+        this.needTipNum = 14
+      }
+      else if(tip == 6){
+        this.needTip = '海外企业报告'
+        this.needTipNum = 5
+      }
+      this.stateAll =
+        [{ text: "对方正常营业 ", opacity: 1, val: 1, iconRatingShow: 0 },  { text: "对方承认欠款 ", opacity: 0, val: 2, iconRatingShow: 1 },  { text: "欠款有纠纷 ", opacity: 0, val: 3, iconRatingShow: 1 },  { text: "无法联系上 ", opacity: 0, val: 4, iconRatingShow: 1 },  { text: "已倒闭破产 ", opacity: 0, val: 5, iconRatingShow: 1 }]
+      this.$apply()
+    }
+    onShow() {
+    }
+  }
+</script>

@@ -1,0 +1,284 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .phcolor{color: #999}
+  .tip{padding: ~'36rpx 30rpx 0'; box-sizing: border-box; box-sizing: border-box; height: ~'86rpx'; font-size: ~'28rpx'; color: #666; background: @line}
+  .myNews{ padding: ~'0 0 0 30rpx'; box-sizing: border-box; background: #fff}
+  .myNews>view{position: relative; left: 0; top: 0; display: flex; justify-content: flex-start; align-items: center; line-height: ~'90rpx'; height: ~'90rpx'}
+  .news{font-size: ~'32rpx'}
+  .news>view  {border-bottom: @line_border}
+  .news>view>text{ width: ~'180rpx'; color: #222;}
+  .news>view>input{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ~'480rpx'; color: #999}
+  .newsAdd>view>input{color: #222}
+  .myNews .dollerTip{ margin-right: ~'30rpx'; box-sizing: border-box; width: ~'70rpx'; text-align: right}
+  .int{ height: ~'60rpx'; width: 100%}
+  .myNews>view{position: relative}
+  .myNews image{ position: absolute; top: 50%; transform: translateY(-50%); right: ~'30rpx'; display: block; width: ~'16rpx'; height: ~'24rpx'}
+  .state>view>image{ position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: ~'46rpx'; height: ~'46rpx'}
+
+  .btn{position: fixed; bottom: ~'60rpx'; left: 50%; transform: translateX(-50%); width: ~'690rpx'; line-height: ~'88rpx'; background: #E23733; color: #fff}
+  .btn_hover{opacity: .8}
+
+  .zzc{ position: fixed; top: 0; left: 0; z-index: 999; width: 100%; height: 100%; background: rgba(0, 0, 0, .5)}
+  .zzc_item{ position: fixed; z-index: 999; bottom: 0; left: 0; width: 100%}
+  .myNews view .right_icon{ display: block; width: ~'26rpx'; height: ~'26rpx'}
+</style>
+
+<template>
+  <view style="{{formStyle}}">
+    <view class="myTip tip">填写需求</view>
+    <view class="myNews news newsAdd">
+      <view>
+        <text>企业名称</text>
+        <input placeholder-class="phcolor" placeholder='请输入您的企业名称' value='{{myNameV}}' @input='inputName'/>
+      </view>
+      <view>
+        <text>融资金额</text>
+        <input type="number" placeholder-class="phcolor" style='flex: 1;color: {{coinTip}}' placeholder='请输入融资金额' value="{{coinV}}" @input='inputCoin' maxlength='5'/>
+        <view class="dollerTip">万元</view>
+      </view>
+      <view style='border: 0'>
+        <text>融资期限</text>
+        <input type="number" placeholder-class="phcolor" style='flex: 1;color: {{coinTip}}' placeholder='请输入融资期限' value="{{timeV}}" @input='inputTime' maxlength='2'/>
+        <view class="dollerTip">月</view>
+      </view>
+    </view>
+
+    <view class="int"></view>
+
+    <view class="myNews news" @tap='handleClickChoice'>
+      <view data-tip="time">
+        <text data-tip="time">资金用途</text>
+        <input data-tip="time" style="color: {{textTip}}" value="{{textKey}}" disabled data-val='{{textVal}}'/>
+        <image data-tip="time" class="choiceTiem" src="{{static_img_url.icon_arrow1}}"></image>
+      </view>
+      <view data-tip="state" style="border: 0">
+        <text data-tip="state">贷款方式</text>
+        <input data-tip="state" style="color: {{stateTip}}"  value="{{stateKey}}" data-val="{{stateVal}}" disabled/>
+        <image data-tip="state" class="choiceStateId" src="{{static_img_url.icon_arrow1}}"></image>
+      </view>
+    </view>
+    <view class="myTip tip">填写联系方式</view>
+    <view class="myNews news newsAdd">
+      <view>
+        <text>企业联系人</text>
+        <input placeholder-class="phcolor" placeholder='填写您的姓名' value='{{lationV}}' @input='inputLation'/>
+      </view>
+      <view style='border:0'>
+        <text>联系方式</text>
+          <input type="number" style='color: {{telTip}}' placeholder-class="phcolor" placeholder='填写您的电话' value="{{telV}}" @input='inputTel'/>
+      </view>
+    </view>
+
+    <button class="btn" hover-class="btn_hover" @tap='handleClickSubmit' style="opacity: {{btnOpacity}}" type="submit" hover-stay-time="600">
+      提交需求
+    </button>
+    <view class='int'></view>
+
+    <!-- zzc -->
+    <view class="zzc" hidden='{{zzcShow}}' @tap.stop='handleClickZzc'>
+      <!-- 拖欠时间 -->
+      <view class="zzc_item" style='{{myNewsStyle}}'>
+        <view class="myTip tip">资金用途</view>
+        <view class="myNews news">
+          <view wx:for="{{myTime}}" wx:key="{{item}}" @tap.stop='handleClickMyNews' data-text="{{item.key}}" data-val="{{item.val}}">
+            <text style='width: 100%' data-text="{{item.key}}" data-val="{{item.val}}">{{item.key}}</text>
+            <image style="{{index+1 == textVal?'display: block':'display: none'}}" class="right_icon" data-text="{{item.key}}" data-val="{{item.val}}" src='{{rightIcon}}'></image>
+          </view>
+        </view>
+      </view>
+      <!-- 案件状态 -->
+      <view class="zzc_item" style='{{caseStateStyle}}'>
+        <view class="myTip tip">贷款方式</view>
+        <view class="myNews news">
+          <view wx:for="{{caseState}}" @tap.stop='handleClickState' wx:key="{{item}}" data-text="{{item.key}}" data-val="{{item.val}}">
+            <text style='width: 100%' data-text="{{item.key}}" data-val='{{item.val}}'>{{item.key}}</text>
+            <image style="{{index+1 == stateVal?'display: block':'display: none'}}" class="right_icon" data-text="{{item.key}}" data-val="{{item.val}}" src='{{rightIcon}}'></image>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <formtip :txt.sync="topTip"></formtip>
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import formtip from '@/components/formTip'
+
+  export default class finacingNeed extends wepy.page {
+    config = {
+      navigationBarTitleText: '完善融资需求'
+    }
+    components = {formtip}
+    mixins = [testMixin]
+    data = {
+      telTip: '',
+      btnOpacity: .6,
+      zzcShow: true,
+      textKey: "选择您的资金用途",
+      stateKey: "选择您的贷款方式",
+      textVal: 1,
+      stateVal: 1,
+      qkStateVal: 1,
+      topTip: "",
+      myTime: [{ val: 1, key: "流动资金" }, { val: 2, key: "固定资金投入" }, { val: 3, key: "其他用途" }],
+      caseState: [{ val: 1, key: "抵押贷款" }, { val: 2, key: "信用贷款" }, { val: 3, key: "其他" }],
+      time: "",
+      state: "",
+      qkStateAll: "",
+      myNewsStyle: "display: none",
+      caseStateStyle: "display: none",
+      stateStyle: "display: none",
+      rightStyle: "display: none",
+
+      myNameV: "",
+      coinV: "",
+      timeV: '',
+      telV: "",
+      lationV: "",
+
+      textTip: '',
+      stateTip: '',
+      static_img_url: {
+        icon_arrow1: base_static + "icon_record_arrow.png",
+      },
+      rightIcon: base_static + 'icon_check_r.png'
+    }
+    computed = {}
+    methods = {
+      inputName(e) {
+        this.myNameV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+      inputLation(e) {
+        this.lationV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+      inputTel(e) {
+        this.telV = e.detail.value, this.telTip = "#222"
+        this.$apply()
+        this.btnJudge()
+      },
+      inputCoin(e) {
+        this.coinV = e.detail.value, this.coinTip = "#222"
+        this.$apply()
+        this.btnJudge()
+      },
+      inputTime(e) {
+        this.timeV = e.detail.value, this.coinTip = "#222"
+        this.$apply()
+        this.btnJudge()
+      },
+
+      handleClickChoice(e) {
+        var tip = e.target.dataset.tip
+        if (tip == "time") { this.myNewsStyle = "display: block", this.zzcShow = false }
+        else if (tip == "state") { this.caseStateStyle = "display: block", this.zzcShow = false}
+        this.$apply()
+      },
+      handleClickMyNews(e) {
+        this.textTip = "#222", this.zzcShow = true, this.myNewsStyle = "display: none", this.textKey = e.target.dataset.text, this.textVal = e.target.dataset.val
+        this.$apply()
+        this.btnJudge()
+      },
+      handleClickState(e) {
+        this.stateTip = "#222", this.zzcShow = true, this.caseStateStyle = "display: none", this.stateKey = e.target.dataset.text, this.stateVal = e.target.dataset.val
+        this.$apply()
+        this.btnJudge()
+      },
+
+      handleClickSubmit() {
+        var that = this
+        if (this.myNameV != "" && this.lationV != "" && this.telV != "" && this.coinV != ""&& this.timeV != '' && this.textKey != '选择您的资金用途' && this.stateKey != '选择您的贷款方式') {
+          this.btnOpacity = .6
+          setTimeout(()=> {that.btnOpacity = 1, that.$apply()}, 300)
+          var zztel = /^(13[0-9]|14[5-9]|15[012356789]|166|17[0-8]|18[0-9]|19[8-9])[0-9]{8}$/
+          if (this.telV.length <= 0 || this.telV.length > 11 || this.telV === 0) {
+            this.topTip = "请输入正确电话格式", this.telTip = "#E23733"
+            this.$apply()
+            setTimeout(() => {
+              that.topTip = ""
+              that.$apply()
+            }, 2000)
+          }
+          else {
+            var par = {
+              data: {
+                orgname: this.myNameV,
+                rzje: this.coinV,
+                rzqx: this.timeV,
+                sjhm: this.telV,
+                xm: this.lationV,
+                dkfs: this.stateVal,
+                zjyt: this.textVal,
+                dklx: this.$parent.globalData.financingType
+              }
+            }
+            console.log(par)
+            var json = api.credit_financing(par)
+            json.then(res=> {
+              console.log(res)
+              var tip = res.data.code
+              if(tip == 0) {
+                wepy.navigateTo({
+                  url: '/pages/activateTip?tip=require'
+                })
+              }
+            })
+          }
+        }
+        else {
+
+        }
+      },
+      handleClickZzc() {
+        this.zzcShow = true,
+        this.myNewsStyle = "display: none"
+        this.caseStateStyle = "display: none"
+        this.stateStyle ="display: none"
+        this.$apply()
+      },
+
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    btnJudge() {
+      if (this.myNameV != "" && this.lationV != "" && this.telV != "" && this.coinV != ""&& this.timeV != '' && this.textKey != '选择您的资金用途' && this.stateKey != '选择您的贷款方式'){this.btnOpacity = 1}
+      else {this.btnOpacity = .6}
+    }
+    events = {}
+    async onLoad() {
+      console.warn(this.$parent.globalData.financingType, 123)
+      var that = this
+      var json = api.financing_data()
+      json.then(res=> {
+        var code = res.data.code
+        var data = res.data.data
+        if(code == 0) {
+          that.myNameV = data.orgname
+          that.telV = data.sjhm
+          that.lationV = data.xm
+          that.$apply()
+        }
+      })
+    }
+    onShow() {
+    }
+  }
+</script>

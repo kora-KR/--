@@ -1,0 +1,54 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .top{position: relative; top: 0; left: 0; width: 100%; height: ~'388rpx'; background: #fff; overflow: hidden}
+  .top>image{position: absolute; bottom: 0; left: 0}
+  .top>.head_img{width: 100%; height: ~'388rpx'}
+  .top>.head_min_pro{width: ~'750rpx'; height: ~'136rpx'; bottom: 0; left: 0}
+  .top>.head_txt{position: absolute; z-index: 99999; left: ~'120rpx'; bottom: ~'55rpx'; width: 100%; font-size: ~'30rpx'; color: #A49BC2}
+</style>
+
+<template>
+  <view class="top">
+    <image class="head_img" src="{{headImg}}"></image>
+    <image class="head_min_pro" src="{{headGoMinPro}}" @tap="handleClickToMiniProgram"></image>
+    <view class="head_txt"  @tap="handleClickToMiniProgram">文创企业信用查询</view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class indexHead extends wepy.component {
+    data = {
+      headImg: base_static + 'pic_home_title.png',
+      headShadow: base_static + 'pic_show_shadow.png',
+      headGoMinPro: base_static + 'btn_home_search.png'
+    }
+    props = {
+    }
+    components = {
+    }
+
+    methods = {
+      handleClickToMiniProgram() {
+        wepy.navigateToMiniProgram({
+          appId: 'wx19ccecde4a6c6188',
+          path: 'pages/index/index?tag=search',
+          extraData: {},
+          envVersion: 'release',
+          success(res) {
+            // 打开成功
+          }
+        })
+      }
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

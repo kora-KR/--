@@ -1,0 +1,172 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .swiper-tab{display: flex; justify-content: flex-start; align-items: center; position: relative; z-index: 999; padding: ~'0 30rpx'; box-sizing: border-box; width: 100%; border-bottom: @line_border; text-align: center; height: ~'92rpx'; line-height: ~'90rpx'; background: #fff}
+  .swiper-tab-list{font-size: ~'32rpx'; display: inline-block; line-height: ~'93rpx'; font-weight: 600}
+  .swiper-tab-list:nth-of-type(1){margin-right: ~'50rpx'}
+  .swiper-box{display: block; width: 100%; height: ~'560rpx'; overflow: hidden; box-sizing: border-box}
+  .move{position: absolute; left: 0; top: ~'88rpx'; width: ~'128rpx'; height: ~'6rpx'}
+  .move_center{position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: ~'80rpx'; height: ~'6rpx'; background: #d72130}
+  .new_item{display: flex; justify-content: space-between; align-items: center; padding: ~'30rpx'; box-sizing: border-box; height: ~'188rpx'; font-size: ~'32rpx'; color: #222; font-weight: 600; border-bottom: @line_border}
+  .new_item>view:nth-of-type(2) {flex: 1}
+  .new_item .img_all{position: relative; z-index: 999; left: 0; top: 0; margin-right: ~'24rpx'; width: ~'200rpx'; height: ~'128rpx'; overflow: hidden}
+  .new_item image{position: absolute; z-index: 999; width: ~'200rpx'; height: ~'128rpx'}
+  .item_title{display: -webkit-box; line-height: ~'44rpx'; min-width: ~'450rpx'; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis}
+  .item_data{display: flex; justify-content: flex-start; align-items: center; margin-top: ~'14rpx'; font-size: ~'24rpx'; font-weight: 400; color: #999}
+  .item_data>text{font-size: ~'24rpx'; font-weight: 400; color: #999}
+  .item_data>text:nth-of-type(1){display: inline-block; max-width: ~'300rpx'; overflow: hidden; text-overflow: ellipsis; white-space: nowrap}
+  .item_data>text:nth-of-type(2){flex: 1}
+  .scroll_view{height: auto; background: #fff}
+</style>
+
+<template>
+  <view class="swiper-tab">
+    <view class="swiper-tab-list {{index == key?'on':''}}" wx:for="{{scrollItem}}" wx:key="{{item}}" id="{{item.st}}" data-current="{{item.id}}" bindtap="swichNav">{{item.text}}</view>
+    <view class="move" animation="{{animation}}">
+      <view class="move_center"></view>
+    </view>
+  </view>
+
+  <swiper current="{{currentTab}}" class="swiper-box" duration="300" @change="bindChange">
+    <!-- 信用动态 -->
+    <swiper-item data-current="0">
+      <scroll-view class="scroll_view" scroll-y>
+        <navigator url="" class="new_item" wx:for="{{newItemOne}}" wx:key="{{item}}" data-url="{{item.url}}" data-title="{{item.title}}" bindtap="handleClickItem">
+          <view class="img_all" data-url="{{item.url}}" data-title="{{item.title}}" hidden='{{item.logourl?0:1}}'>
+            <image data-url="{{item.url}}" data-title="{{item.title}}" src="{{item.logourl}}"></image>
+          </view>
+          <view data-url="{{item.url}}" data-title="{{item.title}}">
+            <view class="item_title" data-url="{{item.url}}" data-title="{{item.title}}">{{item.title}}</view>
+            <view class="item_data" data-url="{{item.url}}" data-title="{{item.title}}"><text data-url="{{item.url}}" data-title="{{item.title}}" style="margin-right: {{item.source?'20rpx':0}}">{{item.source}}</text><text data-url="{{item.url}}" data-title="{{item.title}}">{{item.showtime?item.showtime:''}}</text></view>
+          </view>
+        </navigator>
+      </scroll-view>
+    </swiper-item>
+    <!-- 相关政策 -->
+    <swiper-item data-current="1">
+      <scroll-view class="scroll_view" scroll-y>
+        <navigator url="" class="new_item" wx:for="{{newItemTwo}}" wx:key="{{item}}" data-url="{{item.url}}" data-title="{{item.title}}" bindtap="handleClickItem">
+          <view data-url="{{item.url}}" data-title="{{item.title}}" class="img_all" hidden='{{item.logourl?0:1}}'>
+            <image data-url="{{item.url}}" data-title="{{item.title}}" src="{{item.logourl}}"></image>
+          </view>
+          <view data-url="{{item.url}}" data-title="{{item.title}}">
+            <view class="item_title" data-url="{{item.url}}" data-title="{{item.title}}">{{item.title}}</view>
+            <view class="item_data" data-url="{{item.url}}" data-title="{{item.title}}"><text data-url="{{item.url}}" data-title="{{item.title}}" style="margin-right: {{item.source?'20rpx':0}}">{{item.source}}</text><text data-url="{{item.url}}" data-title="{{item.title}}">{{item.showtime?item.showtime:''}}</text></view>
+          </view>
+        </navigator>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import api from '@/utils/api';
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class indexHotspot extends wepy.component {
+    data = {
+      bgImg: base_static + "pic_nothing1.png",
+      left: 0,
+      animation: "",
+      scrollId: 0,
+      key: 0,
+      scrollItem: [
+        { text: "信用动态", id: "0", st: "one" },
+        { text: "相关政策", id: "1", st: "two" }
+      ],
+      winWidth: 0,
+      winHeight: 0,
+      // tab切换
+      currentTab: 0,
+    }
+    props = {
+      newItemOne: {
+        type: Object,
+        twoWay: true
+      },
+      newItemTwo: {
+        type: Object,
+        twoWay: true
+      },
+
+    }
+    components = {
+    }
+
+    methods = {
+      // 滑动切换
+      bindChange: function (e) {
+        var that = this
+        var i = e.detail.current
+        this.currentTab = i
+        this.key = i
+        this.$apply()
+        if (i == 0) { this.queryMultipleNodes("#one")}
+        else if(i == 1) {this.queryMultipleNodes("#two")}
+      },
+      // 点击tab切换
+      swichNav(e){
+        var that = this;
+        if (this.currentTab === e.target.dataset.current) {
+          return false;
+        }
+        else {
+          this.currentTab = e.target.dataset.current
+          this.key = e.target.dataset.current
+          this.$apply()
+        }
+      },
+      handleClickItem(e) {
+        var url = e.target.dataset.url
+        wepy.navigateTo({
+          url: "/pages/indexHotSpotWeb?url=" + url.split("?")[0] + "&newsId=" + url.split("?")[1].split("=")[1] + "&pName=" + url.split("?")[1].split("=")[2] + "&uid=" + url.split("?")[1].split("=")[3] + '&flag=' + e.target.dataset.title
+        })
+      }
+    }
+
+    move(x) {
+      this.animation = wepy.createAnimation({
+        duration: 300,
+        timingFunction: 'linear',
+        delay: 100,
+        transformOrigin: 'left top 0',
+        success(res) {
+        }
+      })
+      this.animation.translateX(x).step()
+      this.animation = this.animation.export()
+      this.$apply()
+    }
+    // dom操作
+    queryMultipleNodes(x) {
+      var that = this
+      var query = wepy.createSelectorQuery()//创建节点查询器 query
+      query.select(x).boundingClientRect()//这段代码的意思是选择Id=the-id的节点，获取节点位置信息的查询请求
+      query.selectViewport().scrollOffset()//这段代码的意思是获取页面滑动位置的查询请求
+      query.exec((res) => {
+        that.left = res[0].left
+        that.move(that.left)
+        that.$apply()
+      })
+    }
+
+    onLoad() {
+      var that = this
+      this.animation = wepy.createAnimation({
+        duration: 300,
+        timingFunction: 'linear',
+        delay: 100,
+        transformOrigin: 'left top 0',
+        success(res) {
+        }
+      })
+      this.animation.translateX(15).step()
+      this.animation = this.animation.export()
+      this.$apply()
+    }
+  }
+
+</script>

@@ -1,0 +1,73 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .out_relation{position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0, 0, .5)}
+  .all_relation{position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; width: ~'560rpx'; height: auto; background: #fff; border-radius: ~'8rpx'}
+  .all_relation image{margin-right: ~'47rpx'; width: ~'40rpx'; height: ~'40rpx'}
+  .all_relation>view:not(:nth-of-type(1)){position: relative; display: flex; justify-content: flex-start; align-items: center; padding: ~'0 30rpx'; box-sizing: border-box; height: ~'100rpx'; font-size: ~'28rpx'; font-weight: 600; border-top: @line_border}
+  .title_relation{line-height: ~'140rpx'; text-align: center; font-weight: 600}
+  .int{position: absolute; top: 50%; transform: translateY(-50%); left: ~'96rpx'; width: ~'1rpx'; height: ~'30rpx'; background: @line_border_color}
+</style>
+
+<template>
+  <view class="out_relation" @tap="handleClickZzc">
+    <view class="all_relation">
+      <view class="title_relation" @tap.stop="handleClickTitle">请联系我们</view>
+      <view wx:for="{{pro}}" wx:key="{{item}}" data-tip="{{item.tip}}">
+        <image src="{{item.img}}" data-tip="{{item.tip}}"></image>
+        <view data-tip="{{item.tip}}">{{item.txt}}</view>
+        <view class="int" data-tip="{{item.tip}}"></view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  import menupro from '@/components/common/indexMenuPro'
+
+  export default class indexRelation extends wepy.component {
+    data = {
+      pro: [{img: base_static + 'icon_phone_1.png', txt: '融资咨询：(0532)82876729', tip: 'finacingTel'}, {img: base_static + 'icon_phone_1.png', txt: '信用服务：400-800-7975', tip: 'creditTel'}, {img: base_static + 'icon_mail_1.png', txt: 'service@gladtrust.com', tip: 'email'}]
+    }
+    props = {
+    }
+    components = {menupro}
+
+    methods = {
+      handleClickTitle() {
+        console.warn('MADE IN KORA')
+      },
+      handleClickZzc(e) {
+        var tip = e.target.dataset.tip
+        if(tip == 'finacingTel') {
+          wepy.makePhoneCall({phoneNumber: '0532-82876729'})
+        }
+        else if(tip =='creditTel') {
+          wepy.makePhoneCall({phoneNumber: '400-800-7975'})
+        }
+        else if(tip == 'email') {
+          wepy.setClipboardData({
+            data: 'service@gladtrust.com',
+            success: function(res) {
+              wepy.getClipboardData({
+                success: function(res) {
+                  console.warn('OK') // data
+                }
+              })
+            }
+          })
+        }
+        this.$emit('zzcHide')
+      }
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

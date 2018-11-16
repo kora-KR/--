@@ -1,0 +1,76 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{position: relative; padding: ~'30rpx 30rpx 10rpx'; box-sizing: border-box; background: #fff; font-size: ~'32rpx'; overflow: hidden}
+  .all>view:nth-of-type(1){font-weight: 600}
+  .swiper{height: ~'312rpx'}
+  .auz_item{ display: flex; justify-content: flex-start; align-items: center; box-sizing: border-box; height: 100%}
+  .coin{ margin-bottom: ~'16rpx'; font-size: ~'30rpx'; color: #fa5c1e; font-weight: 600}
+  .coin>text{margin-right: ~'6rpx'; line-height: 1; font-size: ~'50rpx'; font-weight: bold; font-family: DIN; color: #fa5c1e}
+  .name{margin-top: ~'20rpx'; width: ~'426rpx'; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: ~'16rpx'; font-size: ~'30rpx'; color: #222}
+  .auz_item>view:nth-of-type(1){position: relative; top: ~'6rpx'; left: 0; margin-right: ~'26rpx'; box-sizing: border-box;}
+  .auz_int{position: absolute; left: ~'230rpx'; top: ~'46rpx'; width: ~'1rpx'; height: ~'70rpx'; background: @line_border_color}
+  .swiper_item{ box-sizing: border-box; height: ~'156rpx'; border-bottom: @line_border}
+  .type{font-size: ~'26rpx'; color: #999}
+  .authorize_zzc{position: absolute; top: 0; left: 0; z-index: 999; width: 100%; height: 100%; background: transparent}
+  .auz_img{position: relative; top: ~'3rpx'; left: 0; width: ~'102rpx'; height: ~'102rpx'}
+  .auz_txt{position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; text-align: center; font-size: ~'26rpx'; color: #d5433f; font-weight: 600}
+</style>
+
+<template>
+  <view class="all">
+    <view>最新授信企业</view>
+    <swiper class="swiper" circular vertical autoplay interval='5000' duration='1000' display-multiple-items="2">
+      <block wx:for="{{auz}}" wx:key="{{item}}">
+        <swiper-item class="swiper_item">
+          <view class="auz_item">
+            <view>
+              <image class="auz_img" src="{{auzImg}}"></image>
+              <view class="auz_txt">已授信</view>
+            </view>
+            <view>
+              <view class="name">{{item.zsOrgName}}</view>
+              <view class="type">{{item.zqrlxdh}}</view>
+            </view>
+          </view>
+        </swiper-item>
+      </block>
+    </swiper>
+    <view class="authorize_zzc"></view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class indexAuthorize extends wepy.component {
+    data = {
+      auzImg: base_static + 'pic_txtbg_1.png',
+      auz: [
+        {qkje: '80', cqkbh: '512444', zsOrgName: '青岛XXXX投资有限公司', zqrlxdh: '授信企业' },
+        {qkje: '75', cqkbh: '512444', zsOrgName: '青岛XX集团有限公司', zqrlxdh: '授信企业' },
+        {qkje: '60', cqkbh: '512444', zsOrgName: '青岛XX电影股份有限公司', zqrlxdh: '授信企业' },
+        {qkje: '30', cqkbh: '512444', zsOrgName: '青岛XX图书有限公司', zqrlxdh: '授信企业' },
+        {qkje: '50', cqkbh: '512444', zsOrgName: '青岛XXX文化有限公司', zqrlxdh: '授信企业' },
+        {qkje: '50', cqkbh: '512444', zsOrgName: '青岛XX影视传媒集团有限公司', zqrlxdh: '授信企业' },
+        {qkje: '70', cqkbh: '512444', zsOrgName: '青岛XX集团有限公司', zqrlxdh: '授信企业' },
+        {qkje: '50', cqkbh: '512444', zsOrgName: '青岛XX文化传播有限公司', zqrlxdh: '授信企业' },
+        {qkje: '80', cqkbh: '512444', zsOrgName: '青岛XX影视传媒股份有限公司', zqrlxdh: '授信企业' },
+        {qkje: '20', cqkbh: '512444', zsOrgName: '青岛XXXX文化传媒有限公司', zqrlxdh: '授信企业' }
+        ]
+    }
+    props = {
+    }
+    components = {
+    }
+
+    methods = {}
+
+    onLoad() {
+    }
+  }
+
+</script>

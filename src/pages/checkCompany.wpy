@@ -1,0 +1,195 @@
+<style src="../styles/resert.css"></style>
+<style lang="less">
+  @import '../styles/common';
+  .out{width: 100%; height: 100%; background: #fff}
+  image{position: absolute; top: 0; left: 0; width: 100%}
+  .head_all{position: relative; top: 0; left: 0; width: 100%; height: ~'240rpx'; overflow: hidden}
+  .head_all>.head_txt{position: absolute; z-index: 999; width: 100%; color: #fff; text-align: center}
+  .head_all>.head_txt:nth-of-type(1){left: 0; font-size: ~'50rpx'; font-weight: 600}
+  .head_all>.head_txt:nth-of-type(2){left: 0; font-size: ~'26rpx'}
+  .main{padding: ~'10rpx 60rpx 56rpx'; box-sizing: border-box; background: #fff}
+  .title{margin: ~'40rpx auto 30rpx'; font-size: ~'36rpx'; font-weight: 600; text-align: center}
+  .txt{line-height: ~'48rpx'; font-size: ~'28rpx'}
+  button{margin-top: ~'40rpx'; width: ~'630rpx'; line-height: ~'88rpx'; font-size: ~'34rpx'}
+  button:nth-of-type(1){margin-top: ~'80rpx'; background: #E23733; color: #fff}
+  .btn{background: #fbfafc}
+  .btn_hover{opacity: .8}
+  .btn_hover_check{background: #eee}
+</style>
+
+<template>
+  <view class="out">
+    <view class="head_all">
+      <view class="head_txt" style="top: {{txtTop1}}">{{show.title1}}</view>
+      <view class="head_txt" style="top: {{txtTop2}}">{{show.title2}}</view>
+      <image src="{{headImg}}" mode="widthFix"></image>
+    </view>
+    <view class="main">
+      <view class="title">{{title1}}</view>
+      <view class="txt">{{show.txt1}} </view>
+      <view class="title">{{title2}}</view>
+      <view class="txt">{{show.txt2}}</view>
+      <button hover-class="btn_hover" hover-stay-time="600" @tap="handleClickBtn">{{btnTxt}}</button>
+      <button class="btn" hover-class="btn_hover_check" hover-stay-time="600" hidden="{{checkDemoShow}}" @tap="handleClickModel">查看样本</button>
+      <tip :tip.sync="tipTxt"></tip>
+    </view>
+  </view>
+
+  <load :loadBtn.sync="loadBtn"></load>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import { show } from '@/utils/serverShow';
+  const base_static = config.static_url.static_base_v1;
+
+  import tip from '@/components/gladTip'
+  import load from '@/components/authorize'
+
+  export default class checkCompany extends wepy.page {
+    config = {
+      navigationBarTitleText: '征信详情',
+    }
+    components = {tip, load}
+    mixins = [testMixin]
+    data = {
+      loadBtn: false,
+      title: '【文创青岛】推荐这款文创融资产品给你！',
+      txtTop1: '84rpx',
+      txtTop2: '154rpx',
+      title1: '报告内容',
+      title2: '报告特点',
+      url: '',
+      tipTxt: '由格兰德信用提供相关服务',
+      checkDemoShow: true,
+      show: '',
+      flag: '',
+      tip: '',
+      btnTxt: '申请试用',
+      headImg: base_static + 'pic_report_1_title.png'
+    }
+    computed = {}
+    methods = {
+      handleClickBtn() {
+        if(this.flag === 'credit' || this.tip == 1 || this.tip == 2 || this.tip == 3 || this.tip == 4 || this.tip == 5 || this.tip == 6 ) {
+          wepy.navigateTo({
+            url: '/pages/checkCompanyApply?tip=' + this.tip
+          })
+        }
+        else if(this.flag === 'finacing' || this.tip == 7 || this.tip == 8 || this.tip == 9 || this.tip == 10 || this.tip == 11) {
+          wepy.navigateTo({
+            url: '/pages/finacingNeed'
+          })
+        }
+      },
+      handleClickModel() {
+        var tip = 0
+        if(this.tip == 1) {tip = 3}
+        else if(this.tip == 2) {tip = 13}
+        else if(this.tip == 3) {tip = 12}
+        else if(this.tip == 4) {tip = 2}
+        else if(this.tip == 5) {tip = 11}
+        else if(this.tip == 6) {tip = 5}
+        wepy.navigateTo({
+           url: '/pages/checkCompanyWeb?tip=' + this.url + tip
+        })
+      },
+      onShareAppMessage() {
+        return {
+          title: this.title,
+          path: '/pages/index?tag=checkCompany&tip=' + this.tip
+        }
+      }
+    }
+    events = {}
+    async onLoad(options) {
+
+        var loginKey = wepy.getStorage({
+          key: "loginKey"
+        })
+        loginKey.then(res => {
+          if(res.errMsg == "getStorage:ok") {
+            this.loadBtn = true
+            this.$apply()
+            console.log("之前来过，在我心里~")
+          }
+        }, () => {
+          this.loadBtn = false
+          this.$apply()
+          console.log("用户未点击授权哟~")
+        })
+
+      var env = wx.getStorageSync("env");
+      if(env == 'test' || env == 'dev' || env == 'debug') {
+        this.url = 'https://ceshi.so315.cn/app/report/report_sample/'
+      }
+      else {
+        this.url = 'https://www.x315.com/app/report/report_sample/'
+      }
+      console.log(env)
+      console.warn(options, 222)
+      var flag = options.flag
+      var tip = options.tip
+      this.flag = flag
+      this.tip = tip
+      this.show = show(tip)
+
+      if(flag == 'finacing') {
+        this.headImg = base_static + 'pic_finance_1_title.png'
+        this.btnTxt = '申请融资'
+        this.tipTxt = '由青岛银行提供相关服务'
+        this.title1 = '产品介绍'
+        this.title2 = '产品优势特点'
+        this.txtTop1 = '76rpx'
+        this.txtTop2 = '146rpx'
+        this.checkDemoShow = true
+        wepy.setNavigationBarTitle({
+          title: '融资产品详情'
+        })
+      }
+      else {
+        this.checkDemoShow = false
+      }
+
+      // 分享判断
+      if(tip == 7 || tip == 8 || tip == 9 || tip == 10 || tip == 11) {
+        if(tip == 7) {
+          this.$parent.globalData.financingType = 1
+        }
+        if(tip == 8) {
+          this.$parent.globalData.financingType = 2
+        }
+        if(tip == 9) {
+          this.$parent.globalData.financingType = 3
+        }
+        if(tip == 10) {
+          this.$parent.globalData.financingType = 4
+        }
+        if(tip == 11) {
+          this.$parent.globalData.financingType = 5
+        }
+        this.headImg = base_static + 'pic_finance_1_title.png'
+        this.btnTxt = '申请融资'
+        this.tipTxt = '由青岛银行提供相关服务'
+        this.title1 = '产品介绍'
+        this.title2 = '产品优势特点'
+        this.txtTop1 = '76rpx'
+        this.txtTop2 = '146rpx'
+        this.checkDemoShow = true
+        wepy.setNavigationBarTitle({
+          title: '融资产品详情'
+        })
+      }
+      else {
+        this.title = '信用即是资本——一站式企业信用管理服务'
+        this.checkDemoShow = false
+      }
+      this.$apply()
+    }
+    onShow() {}
+  }
+</script>

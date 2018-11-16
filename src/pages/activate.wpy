@@ -1,0 +1,279 @@
+<style src="../styles/resert.css"></style>
+<style lang="less">
+  @import '../styles/common';
+  .tip{height: ~'86rpx'; font-size: ~'28rpx'; color: #666; padding: ~'34rpx 30rpx 0'; box-sizing: border-box; background: #f3f3f8}
+  .tip_add{height: ~'60rpx'}
+  .myNews{padding: ~'0 0 0 30rpx'; box-sizing: border-box; background: #fff}
+  .myNews>view{position: relative; left: 0; top: 0; display: flex; justify-content: flex-start; align-items: center; line-height: ~'90rpx'; height: ~'90rpx'}
+  .news{ font-size:~'32rpx';}
+  .news>view{border-bottom: @line_border}
+  .news>view>text{width: ~'180rpx'; color: #222;}
+  .news>view>input{overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ~'480rpx'; color: #999}
+  .newsAdd>view>input{color: #222}
+  .news .border_null{border: 0}
+  .btn{position: fixed; left: 50%; bottom: ~'60rpx'; transform: translateX(-50%); width: ~'690rpx'; line-height: ~'88rpx'; font-size: ~'34rpx'; color: #fff; background: #e23733; border-radius: ~'8rpx'}
+  .search{position: relative; top: 0; left: 0}
+  .search_all{position: absolute; z-index: 999; bottom: ~'-820rpx'; left: 0; width: 100%; height: ~'800rpx'; background: #f3f3f8}
+  .active_tip{margin-top: ~'30rpx'; padding-left: ~'30rpx'; box-sizing: border-box; font-size: ~'26rpx'; color: #999}
+</style>
+
+<template>
+  <view class="tip">完善身份信息</view>
+  <view class="myNews news newsAdd search">
+    <view class="border_null">
+      <text>企业名称</text>
+      <input focus placeholder-class="phcolor" placeholder='请输入企业名称进行匹配' value='{{inputV}}' @input='inputSearch' style='color: {{CTip}}'/>
+    </view>
+    <scroll-view scroll-y class="search_all" hidden="{{scrollShow}}" scroll-top="{{scrollTop}}">
+      <repeat for="{{pro}}" key="index" index="index" item="item">
+        <search :item.sync="item" :key.sync="inputV"></search>
+      </repeat>
+    </scroll-view>
+  </view>
+  <view class="tip tip_add"></view>
+  <view class="myNews news newsAdd">
+    <view>
+      <text>姓名</text>
+      <input placeholder-class="phcolor" placeholder='请输入真实姓名' value="{{myNameV}}" @input='inputName'/>
+    </view>
+    <view class="border_null">
+      <text>联系方式</text>
+      <input type="number" style='color: {{telTip}}' placeholder-class="phcolor" placeholder='请输入您的电话' value="{{telV}}" @input='inputTel'/>
+    </view>
+  </view>
+  <view class="tip">上传身份证明材料（名片、工牌、工作证明等）</view>
+  <upload></upload>
+  <view class="active_tip">激活您的企业，开启企业信用档案</view>
+  <button class="submit btn" loading="{{loadingTip}}" @tap='handleClickSubmit' hover="true" hover-class="submitBtn" hover-stay-time="600" style="opacity: {{btnOpacity}}">激活企业</button>
+
+  <formtip :txt.sync="txt"></formtip>
+
+  <load :loadBtn.sync="loadBtn"></load>
+
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import upload from '@/components/photoUpload'
+  import search from '@/components/activateSearch'
+  import formtip from '@/components/formTip'
+  import load from '@/components/authorize'
+
+  export default class Activate extends wepy.page {
+    config = {
+      navigationBarTitleText: '激活您的企业'
+    }
+    components = {upload, search, formtip, load}
+    mixins = [testMixin]
+    data = {
+      loadBtn: false,
+      id: '',
+      txt: '',
+      photos: -1,
+      btnOpacity: .6,
+      scrollTop: 0,
+      scrollShow: true,
+      inputV: '',
+      myNameV: '',
+      telV: '',
+      pro: [],
+      telTip: '',
+      CTip: '',
+      photosBase: ''
+    }
+    computed = {}
+    methods = {
+      inputSearch(e) {
+        this.scrollShow = true
+        this.inputV = e.detail.value
+        this.scrollTop = 0
+        this.CTip = '#222'
+        this.id = ''
+        this.$apply()
+        this.btnJudge()
+        // 搜索请求
+        this.throttle(this.search, 500, 1000)
+      },
+      inputName(e) {
+        this.myNameV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+      inputTel(e) {
+        this.telV = e.detail.value, this.telTip = "#222"
+        this.$apply()
+        this.btnJudge()
+      },
+      handleClickSubmit() {
+        var that = this;
+        if (this.myNameV && this.telV && this.inputV && this.photos.length > 0) {
+          clearTimeout(a)
+          this.btnOpacity = .6
+          setTimeout(()=> {that.btnOpacity = 1, that.$apply()}, 600)
+          if(this.id == '') {
+            this.txt = "请匹配正确的企业名称"
+            this.CTip = "#e23733"
+          }
+          else if (this.telV.length <= 0 || this.telV.length > 11 || this.telV === 0) {
+            this.txt = "请输入正确手机格式"
+            this.telTip = "#e23733"
+          }
+          else {
+            var par = {
+              data: {
+                orgid: this.id,
+                orgname: this.inputV,
+                sfzm: this.photosBase,
+                sjhm: this.telV,
+                xm: this.myNameV
+              }
+            }
+            console.log(par, '上传照片')
+            var json = api.activation_company(par)
+            json.then(res=> {
+              console.log(res)
+              if(res.data.code == 0 ) {
+                wepy.navigateTo({
+                  url: '/pages/activateTip?tip=active'
+                })
+              }
+            })
+          }
+          this.$apply()
+          var a = setTimeout(()=> {that.txt = '', that.$apply()}, 1500)
+        }
+        else {
+        }
+        this.$apply()
+      }
+      // onShareAppMessage() {
+      //   return {
+      //     title: '我已入驻青岛文创平台，快来激活你的企业吧！',
+      //     path: '/pages/index?tag=activate'
+      //   }
+      // }
+    }
+    search() {
+      var that = this
+      var parOne = {
+        data: {
+          key: this.inputV,
+          city: "0",
+          st: "company",
+          zone: '0',
+          industry_code: "0",
+          capital_range: "0-~",
+          found_time: "0-~",
+          sort_direction: "",
+          sort_filed: "",
+          page_size: 20,
+          page_no: 1
+        }
+      }
+      const json = api.enterprise_search(parOne);
+      json.then(res => {
+        var returnRes = res.data.data;
+        console.log(returnRes, 1234)
+        if(returnRes) {
+          var orglist = returnRes.orglist
+          if(orglist.length > 0) {
+            // 去除标签
+            for (let i = 0; i < orglist.length; i++) {
+              // 转换为小写判存
+              if(orglist[i].mc.indexOf(that.inputV.toLowerCase()) != -1) {
+                var str = orglist[i].mc.replace(/<\/?.+?>/g, "").split(that.inputV.toLowerCase())
+                orglist[i].flag = that.inputV.toLowerCase()
+              }
+              // 转换为大写判存
+              else if(orglist[i].mc.indexOf(that.inputV.toUpperCase()) != -1) {
+                var str = orglist[i].mc.replace(/<\/?.+?>/g, "").split(that.inputV.toUpperCase())
+                orglist[i].flag = that.inputV.toUpperCase()
+              }
+              else {
+                var str = orglist[i].mc.replace(/<\/?.+?>/g, "").split(that.inputV)
+              }
+              orglist[i].mcAdd = orglist[i].mc.replace(/<\/?.+?>/g, "")
+              orglist[i].mc = str
+              if (orglist[i].matchContent) {
+                var strAdd = app.convertHtmlToText(orglist[i].matchContent);
+                orglist[i].matchContent = strAdd
+              }
+            }
+            that.pro = orglist
+            that.scrollShow = false
+          }
+          else {
+            that.scrollShow = true
+          }
+        }
+        else {
+          that.scrollShow = true
+        }
+        that.$apply()
+      })
+    }
+
+    throttle(fn, delay, mustApplyTime){
+      var that = this
+        clearTimeout(fn.timer);
+        fn._cur = Date.now();  //记录当前时间
+
+        if(!fn._start){      //若该函数是第一次调用，则直接设置_start,即开始时间，为_cur，即此刻的时间
+          fn._start = fn._cur;
+        }
+        if(fn._cur - fn._start > mustApplyTime){
+          //当前时间与上一次函数被执行的时间作差，与mustApplyTime比较，若大于，则必须执行一次函数，若小于，则重新设置计时器
+          that.search()
+          fn._start = fn._cur;
+        }else{
+          fn.timer = setTimeout(function(){
+            that.search()
+          },delay);
+      }
+    }
+
+    btnJudge() {
+      if (this.myNameV != '' && this.inputV != '' && this.telV != '' && this.photos.length > 0) {this.btnOpacity = 1}
+      else {this.btnOpacity = .6}
+      this.$apply()
+    }
+    events = {
+      clickSearchItem: (e)=> {
+        this.scrollShow = true
+        this.inputV = e.currentTarget.dataset.searchitem
+        this.id = e.currentTarget.dataset.id
+        this.$apply()
+      },
+      imgAll: (e)=> {
+        this.photos = e
+        this.photosBase = wx.getFileSystemManager().readFileSync(this.photos[0], "base64")
+        this.$apply()
+        this.btnJudge()
+      }
+    }
+    async onLoad() {
+      var loginKey = wepy.getStorage({
+        key: "loginKey"
+      })
+      loginKey.then(res => {
+        if(res.errMsg == "getStorage:ok") {
+          this.loadBtn = true
+          this.$apply()
+          console.log("之前来过，在我心里~")
+        }
+      }, () => {
+        this.loadBtn = false
+        this.$apply()
+        console.log("用户未点击授权哟~")
+      })
+    }
+    onShow() {}
+  }
+</script>

@@ -1,0 +1,71 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .out{padding-bottom: ~'152rpx'; box-sizing: border-box}
+  .int{height: ~'20rpx'; background: @line}
+  .head_img{width: 100%}
+  .monitor{background: #fff}
+  .monitor>view:nth-of-type(1){padding: ~'40rpx 30rpx 0'; box-sizing: border-box; margin-bottom: ~'10rpx'; font-size: ~'36rpx'; font-weight: 600}
+  .btn{position: fixed; bottom: 0; left: 0; z-index: 999; width: 100%; line-height: ~'96rpx'; font-size: ~'34rpx'; color: #fff; text-align: center; background: @line_gradient2}
+  .btn_all{height: ~'96rpx'; background: #f3f3f8}
+</style>
+
+<template>
+  <view class="out">
+    <image class="head_img" src="{{headImg}}" mode="widthFix"></image>
+    <view class="int"></view>
+    <view class="monitor">
+      <view>监控维度</view>
+      <repeat for="{{pro}}" key="index" index="index" item="item">
+        <monitoritem :item.sync="item"></monitoritem>
+      </repeat>
+    </view>
+    <tip :tip.sync="tipTxt"></tip>
+    <view class="btn btn_all">
+      <navigator class="btn" url="/pages/checkCompanyApply?tip=monitor">申请试用</navigator>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import monitoritem from '@/components/monitorItem'
+  import tip from '@/components/gladTip'
+
+  export default class Monitor extends wepy.page {
+    config = {
+      navigationBarTitleText: '监控企业'
+    }
+    components = {monitoritem, tip}
+    mixins = [testMixin]
+    data = {
+      tipTxt: '由格兰德信用提供相关服务',
+      headImg: base_static + 'pic_monitor_title.png',
+      pro: [{img: base_static + 'icon_monitor_1.png', txt1: '信用记录', txt2: '全面即时反映目标企业信用状况变动，规避合作风险'}, {img: base_static + 'icon_monitor_2.png', txt1: '注册变化', txt2: '关注目标企业的注册信息变更，有效进行风险预警'}, {img: base_static + 'icon_monitor_3.png', txt1: '资产负债', txt2: '考察目标企业资产变动，揭示运营能力，发现业务动向'}, {img: base_static + 'icon_monitor_4.png', txt1: '经营状况', txt2: '20万+监测点，全面监测舆情动态、运营现状和战略方向'}, {img: base_static + 'icon_monitor_5.png', txt1: '关联关系', txt2: '深挖企业间关联关系，掌握投资策略，预知风险交易'}]
+    }
+    computed = {}
+    methods = {
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    events = {
+
+    }
+    async onLoad() {
+
+    }
+    onShow() {
+    }
+  }
+</script>

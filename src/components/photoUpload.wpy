@@ -1,0 +1,110 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{display: flex; justify-content: flex-start; align-items: center; flex-wrap: wrap; padding: ~'30rpx 30rpx 10rpx'; box-sizing: border-box; min-height: ~'175rpx'; background: #fff}
+  .all>.photo_add{margin: ~'0 0 20rpx 0'; width: ~'116rpx'; height: ~'116rpx'}
+  .photos{position: relative; margin: ~'0 34rpx 20rpx 0';}
+  .all .photos:nth-of-type(5n){margin: ~'0 0 20rpx 0'}
+  image{width: ~'111rpx'; height: ~'111rpx'}
+  .del{position: absolute; top: 0; right: 0; width: ~'40rpx'; height: ~'40rpx'}
+</style>
+
+<template>
+  <view class="all">
+    <view class="photos" wx:for="{{photos}}" wx:key="{{item}}">
+      <image src="{{delImg}}" class="del" data-i="{{index}}" @tap="handleClickDel"></image>
+      <image class="item" src="{{item}}" data-src="{{item}}" @tap="handleClickPhotoItem"></image>
+    </view>
+    <image hidden="{{addHide}}" src="{{addImg}}" class="photo_add" @tap="handleClickChoicePhoto" data-tip="{{tip}}"></image>
+  </view>
+  <!--<canvas canvas-id="myCanvas" style="border: 1px solid" />-->
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  import { loading } from '@/utils/tip.js';
+  import base from '@/utils/base64'
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+
+  export default class photoUpload extends wepy.component {
+    data = {
+      addHide: false,
+      photos: [],
+      delImg: base_static + 'btn_addphoto_dele.png',
+      addImg: base_static + 'btn_addphoto_1.png'
+    }
+    props = {
+      tip: {
+        type: String,
+        twoWay: true
+      }
+    }
+    components = {}
+
+    methods = {
+      handleClickChoicePhoto(e) {
+        var that = this
+        var tip = e.target.dataset.tip
+        var n = ''
+        if(tip == 'repair') {n = 3}
+        else {n = 1}
+        wx.chooseImage({
+          count: n,
+          sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+          sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+          success(res) {
+            that.photos = that.photos.concat(res.tempFilePaths)
+            if(that.photos.length >= n) {
+              that.photos = that.photos.slice(0, n)
+              // loading('图片仅需三张')
+              that.addHide = true
+            }
+            that.$apply()
+            that.$emit('imgAll', that.photos)
+          }
+        })
+      },
+      handleClickPhotoItem(e) {
+        var that = this
+        wx.previewImage({
+          current: e.target.dataset.src,
+          urls: that.photos
+        })
+      },
+      handleClickDel(e) {
+        var i = e.target.dataset.i
+        var that = this
+        wx.showModal({
+          title: '提示',
+          content: '确定要删除此图片吗？',
+          success(res) {
+            if (res.confirm) {
+              that.photos.splice(i, 1)
+              that.addHide = false
+              that.$apply()
+              that.$emit('imgAll', that.photos)
+            } else if (res.cancel) {
+              console.log('取消了哟~');
+              return false;
+            }
+          }
+        })
+      },
+      hide() {
+        var that = this
+        wx.canvasToTempFilePath({
+          canvasId: 'myCanvas',
+          success(res) {
+            that.photos = res.tempFilePaths
+          }
+        })
+      }
+    }
+    onLoad() {
+    }
+  }
+
+</script>

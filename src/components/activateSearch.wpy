@@ -1,0 +1,55 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{position: relative; background: #fff}
+  .all>navigator{display: flex; justify-content: flex-start; align-items: center; min-height: ~'90rpx'}
+  .int{position: absolute; bottom: 0; right: 0; width: ~'720rpx'; height: ~'1rpx'; background: @line_border_color}
+  .all:nth-last-of-type(1)>.int{background: transparent}
+  .inputStyle{color: @res_txt_color}
+  .intval{position: relative; z-index: 999; min-height: ~'90rpx'; width: ~'30rpx'; height: auto}
+  .c_name{line-height: ~'32rpx'; font-size: ~'26rpx'; text-align: justify}
+</style>
+
+<template>
+  <view class="all">
+    <navigator url="" @tap="handleClickSearchItem" data-searchItem="{{item.mcAdd}}" data-id="{{item.id}}">
+      <view class="intval" data-searchItem="{{item}}"  data-id="{{item.id}}"></view>
+      <view class="c_name" data-searchItem="{{item}}"  data-id="{{item.id}}">
+        <text data-searchItem="{{item}}"  data-id="{{item.id}}" style='line-height: 1' wx:for="{{item.mc}}" wx:key="{{item}}"><text  data-id="{{item.id}}" data-searchItem="{{item}}" class="inputStyle" style="{{index == 0?'display:none':'display: inline'}}">{{key}}</text>{{item}}</text>
+      </view>
+      <view data-id="{{item.id}}" class="intval" data-searchItem="{{item}}"></view>
+    </navigator>
+    <view class="int"></view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class activateSearch extends wepy.component {
+    data = {
+
+    }
+    props = {
+      key: {
+        type: String,
+        twoWay: true
+      }
+    }
+    components = {
+    }
+
+    methods = {
+      handleClickSearchItem(e) {
+        this.$emit('clickSearchItem', e)
+      }
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

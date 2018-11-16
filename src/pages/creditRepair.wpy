@@ -1,0 +1,286 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all_out{padding-bottom: ~'60rpx'}
+  .tip{height: ~'86rpx'; font-size: ~'28rpx'; color: #666; padding: ~'34rpx 30rpx 0'; box-sizing: border-box; background: #f3f3f8}
+  .tip_add{height: ~'60rpx'}
+  .myNews{padding: ~'0 0 0 30rpx'; box-sizing: border-box; background: #fff}
+  .myNews>view{position: relative; left: 0; top: 0; display: flex; justify-content: flex-start; align-items: center; line-height: ~'90rpx'; height: ~'90rpx'}
+  .news{ font-size:~'32rpx';}
+  .news>view:not(:nth-last-of-type(1)){border-bottom: @line_border}
+  .news>view>text{width: ~'180rpx'; color: #222;}
+  .news>view>input{overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ~'480rpx'; color: #999}
+  .newsAdd>view>input{color: #222}
+  .news .border_null{border: 0}
+  .btn_hover{background: #fe5a17}
+  .search{position: relative; top: 0; left: 0}
+  .search_all{position: absolute; z-index: 999; bottom: ~'-820rpx'; left: 0; width: 100%; height: ~'800rpx'}
+  .text_all{height: ~'224rpx'; background: #fff}
+  textarea{padding: ~'20rpx 30rpx'; box-sizing: border-box; width: 100%; height: ~'224rpx'; line-height: ~'42rpx'; font-size: ~'30rpx'; background: #fff}
+  .area_place{color: #999}
+  .more_tip{margin: ~'20rpx auto 56rpx'; font-size: ~'26rpx'; color: #999; text-indent: ~'30rpx'}
+  .rel{color: #ed403c}
+  .state>view>image{ position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: ~'46rpx'; height: ~'46rpx'}
+  .icon{display: inline-block; margin-right: ~'22rpx'; height: ~'45rpx'; box-sizing: border-box}
+  .btn{position: relative; width: ~'690rpx'; line-height: ~'88rpx'; background: #E23733; color: #fff}
+  .btn_hover{opacity: .8}
+</style>
+
+<template>
+  <view class="all_out">
+    <view class="tip">完善信息</view>
+    <view class="myNews news newsAdd search">
+      <view>
+        <text>企业名称</text>
+        <input focus placeholder-class="phcolor" placeholder='请输入您的企业名称' value='{{myNameV}}' @input='inputName'/>
+      </view>
+      <view class="border_null">
+        <text>联系电话</text>
+        <input placeholder-class="phcolor" placeholder='请输入您的电话' type="number" value='{{telV}}' style="color: {{telTip}}" @input='inputTel'/>
+      </view>
+    </view>
+
+    <view class="tip">请选择信用修复的内容（可多选）</view>
+    <view class="myNews news state">
+      <view wx:for="{{stateAll}}" wx:key="{{index}}" @tap='handleClickQkItem' data-index="{{index}}" data-val="{{item.val}}">
+        <icon class="icon" style='opacity: {{item.opacity}}' type="success" color="#F0504C" data-index="{{index}}" data-val="{{item.val}}"></icon>
+        <image style='opacity: {{item.iconRatingShow}}' data-index="{{index}}" data-val="{{item.val}}" class="iconRing" src="{{emptyIcon}}"></image>
+        <view style='width: 100%' data-index="{{index}}" data-val="{{item.val}}">{{item.text}}</view>
+      </view>
+    </view>
+
+    <view class="tip">补充说明</view>
+    <view class="text_all">
+      <textarea placeholder-class="area_place" name="" id="" hidden="{{textHide}}" value="{{supplyV}}" placeholder="{{placeholderTxt}}" disabled="{{textIn}}" style="color: {{textColor}}" @input="handleClickText"></textarea>
+    </view>
+    <view class="tip">提供图片</view>
+
+    <upload :tip.sync="tip"></upload>
+
+    <view class="more_tip">更多建议和反馈，您可以直接<text class="rel" @tap="handleClickRelation">联系我们</text></view>
+
+    <button class="btn" hover-class="btn_hover" @tap='handleClickSubmit' style="opacity: {{btnOpacity}}" type="submit" hover-stay-time="600">
+      提交需求
+    </button>
+
+    <formtip :txt.sync="txt"></formtip>
+
+    <zzc hidden="{{zzcShow}}"></zzc>
+
+    <load :loadBtn.sync="loadBtn"></load>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import formtip from '@/components/formTip'
+  import upload from '@/components/photoUpload'
+  import search from '@/components/activateSearch'
+  import zzc from '@/components/indexRelation'
+  import load from '@/components/authorize'
+
+  export default class Activate extends wepy.page {
+    config = {
+      navigationBarTitleText: '信用修复'
+    }
+    components = {upload, search, formtip, zzc, load}
+    mixins = [testMixin]
+    data = {
+      loadBtn: false,
+      textHide: false,
+      textIn: false,
+      textColor: '#222',
+      placeholderTxt: '请针对需要进行信用修复的模块进行补充说明',
+      zzcShow: true,
+      stateAllTip: false,
+      repairV: '',
+      photosBase: [],
+      supplyV: '',
+      photosL: '',
+      choiceTip: 0,
+      btnOpacity: .6,
+      telV: '',
+      telTip: '',
+      myNameV: '',
+      txt: '',
+      tip: 'repair',
+      emptyIcon: base_static + 'icon_mcq_2.png',
+      scrollTop: 0,
+      scrollShow: true,
+      inputV: '',
+      stateAll: [
+        { text: "信用信息 ", opacity: 0, val: 1, iconRatingShow: 1 },
+        { text: "信用等级 ", opacity: 0, val: 2, iconRatingShow: 1 },
+        { text: "风险评价 ", opacity: 0, val: 3, iconRatingShow: 1 },
+        { text: "不良记录 ", opacity: 0, val: 4, iconRatingShow: 1 },
+        { text: "变更记录 ", opacity: 0, val: 5, iconRatingShow: 1 }],
+    }
+    computed = {}
+    methods = {
+      inputName(e) {
+        this.myNameV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+      inputTel(e) {
+        this.telV = e.detail.value, this.telTip = "#222"
+        this.$apply()
+        this.btnJudge()
+      },
+      handleClickText(e) {
+        this.supplyV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+
+      handleClickQkItem(e) {
+        this.stateAllTip = false
+        this.choiceTip = 1
+        var i = e.target.dataset.index
+        if (this.stateAll[i].opacity == 1) { this.stateAll[i].opacity = 0, this.stateAll[i].iconRatingShow = 1 }
+        else { this.stateAll[i].opacity = 1, this.stateAll[i].iconRatingShow = 0 }
+
+        for(var i = 0; i < this.stateAll.length; i++) {
+          if(this.stateAll[i].opacity == 1) {
+            this.stateAllTip = true
+          }
+        }
+        this.$apply()
+        this.btnJudge()
+      },
+
+      handleClickSubmit() {
+        var that = this
+        if (this.myNameV != "" && this.telV != "" && this.supplyV != "" && this.photosBase.length > 0 && this.stateAllTip) {
+          this.btnOpacity = .6
+          setTimeout(()=> {that.btnOpacity = 1, that.$apply()}, 300)
+          var zztel = /^(13[0-9]|14[5-9]|15[012356789]|166|17[0-8]|18[0-9]|19[8-9])[0-9]{8}$/
+          if (this.telV.length <= 0 || this.telV.length > 11 || this.telV === 0) {
+            this.txt = "请输入正确电话格式", this.telTip = "#E23733"
+          }
+          else if(this.stateAll[0].opacity == 0 && this.stateAll[1].opacity == 0 && this.stateAll[2].opacity == 0 && this.stateAll[3].opacity == 0 && this.stateAll[4].opacity == 0) {
+            this.txt = "请选择信用修复内容", this.telTip = "#E23733"
+          }
+          else if(this.photosL <= 0) {
+            this.txt = "请提供图片凭证", this.telTip = "#E23733"
+          }
+          else {
+            var x = ''
+            var flag = true
+            for(var i = 0; i < this.stateAll.length; i++) {
+              if(flag) {
+                if(this.stateAll[i].opacity == 1) {
+                  flag = false
+                  x += this.stateAll[i].val
+                }
+              }
+              else {
+                if(this.stateAll[i].opacity == 1) {
+                  x += ',' + this.stateAll[i].val
+                }
+              }
+            }
+            this.repairV = x
+            console.log(x)
+            var par = {
+                data: {
+                'bcsm': this.supplyV,
+                'orgname': this.myNameV,
+                'sjhm': this.telV,
+                'imgs1': this.photosBase[0],
+                'imgs2': this.photosBase[1],
+                'imgs3': this.photosBase[2],
+                'xfnr': this.repairV
+              }
+            }
+            console.log(par, 111)
+            var json = api.credit_repair(par)
+            json.then(res=> {
+              console.log(res)
+              var code = res.data.code
+              if(code == 0) {
+                wepy.navigateTo({
+                  url: '/pages/activateTip?tip=trial'
+                })
+              }
+            })
+          }
+          this.$apply()
+          // 顶部文本重置
+          setTimeout(() => {
+            that.txt = ""
+            that.$apply()
+          }, 2000)
+        }
+        else {
+
+        }
+      },
+
+      handleClickRelation() {
+        this.zzcShow = false
+        this.placeholderTxt = ' '
+        this.textColor = 'transparent'
+        this.textIn = true
+        this.textHide = true
+        this.$apply()
+      },
+
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    events = {
+      imgAll: (e)=> {
+        this.photosL = e
+        this.photosBase = []
+        for(var i = 0; i < e.length; i++) {
+          this.photosBase[i] = wx.getFileSystemManager().readFileSync(e[i], "base64")
+        }
+        this.$apply()
+        this.btnJudge()
+      },
+      zzcHide: ()=> {
+        this.zzcShow = true
+        this.placeholderTxt = '请针对需要进行信用修复的模块进行补充说明'
+        this.textColor = '#222'
+        this.textHide = false
+        this.textIn = false
+        this.$apply()
+      }
+    }
+    btnJudge() {
+      if (this.myNameV != "" && this.telV != "" && this.supplyV != "" && this.photosBase.length > 0 && this.stateAllTip){this.btnOpacity = 1}
+      else {this.btnOpacity = .6}
+      this.$apply()
+    }
+    async onLoad() {
+      var loginKey = wepy.getStorage({
+        key: "loginKey"
+      })
+      loginKey.then(res => {
+        if(res.errMsg == "getStorage:ok") {
+          this.loadBtn = true
+          this.$apply()
+          console.log("之前来过，在我心里~")
+        }
+      }, () => {
+        this.loadBtn = false
+        this.$apply()
+        console.log("用户未点击授权哟~")
+      })
+    }
+    onShow() {
+    }
+  }
+</script>

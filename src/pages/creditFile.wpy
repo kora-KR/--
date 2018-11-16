@@ -1,0 +1,104 @@
+<style src="../styles/resert.css"></style>
+<style lang="less">
+  @import '../styles/common';
+  .all_out{padding-bottom: ~'176rpx'; box-sizing: border-box}
+  .btn{position: fixed; bottom: 0; left: 0; width: 100%; line-height: ~'96rpx'; font-size: ~'34rpx'; background: @line_gradient; color: #fff}
+  .btn_hover{opacity: .8}
+  button{border-radius: 0; border: 0}
+  button:after{border-radius: 0; border: 0}
+</style>
+
+<template>
+  <view class="all_out">
+    <summary :company.sync="company"></summary>
+    <grad :company.sync="company" :gradBg.sync="gradBg" :gradTip.sync="gradTip"></grad>
+    <risk :company.sync="company"></risk>
+    <button class="btn" hover-class="btn_hover" hover-stay-time="600" @tap="handleClickMore">更多信息</button>
+  </view>
+
+  <load :loadBtn.sync="loadBtn"></load>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+  import gradBb from '@/utils/gradeColor'
+  import gradTip from '@/utils/gradTip'
+
+  import summary from '@/components/creditFileSummary'
+  import grad from '@/components/creditFileGrad'
+  import risk from '@/components/creditFileRisk'
+  import load from '@/components/authorize'
+
+  export default class creditFile extends wepy.page {
+    config = {
+      navigationBarTitleText: '企业信用档案'
+    }
+    components = {summary, grad, risk, load}
+    mixins = [testMixin]
+    data = {
+      loadBtn: false,
+      company: '',
+      gradBg: '',
+      gradTip: ''
+    }
+    computed = {}
+    methods = {
+      handleClickMore() {
+        wepy.navigateToMiniProgram({
+          appId: 'wx19ccecde4a6c6188',
+          path: 'pages/index/index?tag=searchDetail&id=' + this.$parent.globalData.companyId + '&name=' + this.company.company_name,
+          extraData: {},
+          envVersion: 'release',
+          success(res) {
+            // 打开成功
+          }
+        })
+      },
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    events = {}
+    async onLoad() {
+      var loginKey = wepy.getStorage({
+        key: "loginKey"
+      })
+      loginKey.then(res => {
+        if(res.errMsg == "getStorage:ok") {
+          this.loadBtn = true
+          this.$apply()
+          console.log("之前来过，在我心里~")
+        }
+      }, () => {
+        this.loadBtn = false
+        this.$apply()
+        console.log("用户未点击授权哟~")
+      })
+
+      var that = this
+      var par = {
+        id: this.$parent.globalData.companyId
+      }
+      var json = api.enterprise_detial(par)
+      json.then(res=> {
+        that.company = res.data.data
+        console.log(res.data.data, 999)
+        that.gradBg = gradBb.colorJud(this.company.company_level)
+        that.gradTip = gradTip.gradTip(this.company.company_level)
+        that.$apply()
+      })
+      this.$apply()
+    }
+    onShow() {
+    }
+  }
+</script>

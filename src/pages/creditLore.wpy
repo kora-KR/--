@@ -1,0 +1,58 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{padding-bottom: ~'60rpx'; box-sizing: border-box}
+  image{width: 100%}
+</style>
+
+<template>
+  <view class="all">
+    <image src="{{headImg}}" mode="widthFix"></image>
+    <repeat for="{{pro}}" key="index" index="index" item="item">
+      <lore :item.sync="item" :index.sync="index"></lore>
+    </repeat>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import know from "@/utils/knowledge.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import lore from '@/components/creditLoreItem'
+
+  export default class creditLore extends wepy.page {
+    config = {
+      navigationBarTitleText: '信用知库'
+    }
+    components = {lore}
+    mixins = [testMixin]
+    data = {
+      headImg: base_static + 'pic_q&a_title.png',
+      pro: []
+    }
+    computed = {}
+    methods = {
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    events = {
+    }
+    async onLoad() {
+      var pro = know.know()
+      this.pro = pro
+      this.$apply()
+    }
+    onShow() {
+    }
+  }
+</script>

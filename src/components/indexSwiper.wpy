@@ -1,0 +1,83 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{background: #fff}
+  .slide_image{margin-left: ~'6rpx'; width: ~'100%'; height: ~'160rpx'}
+  .swipe_item{height: auto!important;}
+  .swipe-box{height: ~'160rpx'!important;}
+  .dots{display: flex; align-items: flex-start; justify-content: center; height: ~'28rpx'}
+  .dots>view{width: ~'10rpx'; height: ~'10rpx'; border-radius: 50%; background: #f3eceb}
+  .dots>view:nth-of-type(2){margin: ~'0 10rpx'}
+  .dots>.dots_add{background: #e4cecc}
+</style>
+
+<template>
+  <view class="all">
+    <swiper class="swipe-box" autoplay interval="5000" duration="1000" circular bindchange="handleClickSwipe">
+      <block wx:for="{{pro}}" wx:key="{{item}}" data-url="{{item.url}}">
+        <swiper-item class="swipe_item" data-url="{{item.url}}"  @tap="handleClickItem">
+          <image src="{{item.img}}" data-url="{{item.url}}" class="slide_image"/>
+        </swiper-item>
+      </block>
+    </swiper>
+    <view class="dots">
+      <view wx:for="{{dot}}" wx:key="{{item}}" class="{{(index == currentTip)?'dots_add':''}}"></view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import api from '@/utils/api';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+
+  export default class indexSwiper extends wepy.component {
+    data = {
+      pro: [{img: base_static + 'banner_home_1.png', url: 'activate'}, {img: base_static + 'banner_home_2.png', url: 'activate'}, {img: base_static + 'banner_home_3.png', url: 'credit'}],
+      dot: [1, 2, 3],
+      currentTip: ''
+    }
+    props = {}
+    components = {}
+    events = {
+      // 激活
+      active: ()=> {
+        this.pro[0].url = 'activateOk', this.pro[1].url = 'creditFile', this.$parent.$parent.globalData.mainTip = 1, this.$apply()
+      },
+      // 未激活
+      activNo: ()=> {
+        this.pro[0].url = 'activate', this.pro[1].url = 'activate', this.$parent.$parent.globalData.mainTip = 2, this.$apply()
+      },
+      // 未审核
+      unaudited: ()=> {
+        this.pro[0].url = 'activateTip?tip=auditing', this.pro[1].url = 'activateTip?tip=auditing', this.$parent.$parent.globalData.mainTip = 0, this.$apply()
+      }
+    }
+
+    methods = {
+      handleClickSwipe(e) {
+        this.currentTip = e.detail.current
+        this.$apply()
+      },
+      handleClickItem(e) {
+        // 未激活
+        if(this.$parent.$parent.globalData.mainTip == 2) {this.pro[0].url = 'activate', this.pro[1].url = 'activate', this.$parent.$parent.globalData.mainTip = 2}
+        // 激活
+        else if(this.$parent.$parent.globalData.mainTip == 1) {this.pro[0].url = 'activateOk', this.pro[1].url = 'creditFile', this.$parent.$parent.globalData.mainTip = 1}
+        // 未审核
+        else if(this.$parent.$parent.globalData.mainTip == 0) {this.pro[0].url = 'activateTip?tip=auditing', this.pro[1].url = 'activateTip?tip=auditing', this.$parent.$parent.globalData.mainTip = 0}
+
+        var url = e.target.dataset.url
+        wepy.navigateTo({
+          url: '/pages/' + url
+        })
+      }
+    }
+
+    onLoad() {}
+  }
+
+</script>

@@ -1,0 +1,74 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .main_out{height: auto; overflow: hidden; font-size: ~'28rpx'; background: #fff}
+  .main{padding-bottom: ~'2rpx'; box-sizing: border-box}
+</style>
+
+<template>
+  <view class="main_out">
+    <view class="main" @tap="handleClickMain">
+      <repeat for="{{pro}}" key="index" index="index" item="item">
+        <menupro :item.sync="item"></menupro>
+      </repeat>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  import menupro from '@/components/common/indexMenuPro'
+
+  export default class indexMenu extends wepy.component {
+    data = {
+      pro: [{img: base_static + 'icon_home_1.png', txt: '信用激活', url: 'activate'}, {img: base_static + 'icon_home_2.png', txt: '信用档案', url: 'activate'}, {img: base_static + 'icon_home_3.png', txt: '企业征信', url: 'credit', tip: 'credit'}, {img: base_static + 'icon_home_4.png', txt: '信用展示', url: 'enterpriseShow'}, {img: base_static + 'icon_home_5.png', txt: '信用融资', url: 'credit', tip: 'finacing'}, {img: base_static + 'icon_home_6.png', txt: '信用监控', url: 'monitor'}, {img: base_static + 'icon_home_7.png', txt: '信用知库', url: 'creditLore'}, {img: base_static + 'icon_home_8.png', txt: '信用修复', url: 'creditRepair'}]
+    }
+    props = {
+    }
+    components = {menupro}
+    events = {
+      // 激活
+      active: ()=> {
+        this.pro[0].url = 'activateOk', this.pro[1].url = 'creditFile', this.$parent.$parent.globalData.mainTip = 1, this.$apply()
+      },
+      // 未激活
+      activeNo: ()=> {
+        this.pro[0].url = 'activate', this.pro[1].url = 'activate', this.$parent.$parent.globalData.mainTip = 2, this.$apply()
+        console.log(this.pro[0], 222)
+      },
+      // 未审核
+      unaudited: ()=> {
+        this.pro[0].url = 'activateTip?tip=auditing', this.pro[1].url = 'activateTip?tip=auditing', this.$parent.$parent.globalData.mainTip = 0, this.$apply()
+      }
+    }
+    methods = {
+      handleClickToMiniProgram() {
+        wepy.navigateToMiniProgram({
+          appId: 'wx19ccecde4a6c6188',
+          path: 'pages/index/index',
+          extraData: {},
+          envVersion: 'release',
+          success(res) {
+            // 打开成功
+          }
+        })
+      },
+      handleClickMain() {
+        // 未激活
+        if(this.$parent.$parent.globalData.mainTip == 2) {this.pro[0].url = 'activate', this.pro[1].url = 'activate', this.$parent.$parent.globalData.mainTip = 2}
+        // 激活
+        else if(this.$parent.$parent.globalData.mainTip == 1) {this.pro[0].url = 'activateOk', this.pro[1].url = 'creditFile', this.$parent.$parent.globalData.mainTip = 1}
+        // 未审核
+        else if(this.$parent.$parent.globalData.mainTip == 0) {this.pro[0].url = 'activateTip?tip=auditing', this.pro[1].url = 'activateTip?tip=auditing', this.$parent.$parent.globalData.mainTip = 0}
+        this.$apply()
+      }
+    }
+    onLoad() {}
+  }
+
+</script>

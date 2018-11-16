@@ -1,0 +1,219 @@
+<style src="../styles/resert.css"></style>
+<style lang="less">
+  @import '../styles/common';
+  .out{padding-bottom: calc(50/@rpx); box-sizing: border-box}
+  .int{height: ~'20rpx'; background: @line}
+  .btn_rel_all{position: relative; margin: 36/@rpx auto 0;
+    view{position: absolute; top: 24.6/@rpx; left: 52.6%; transform: translateX(-50%); font-size: 26/@rpx}
+  }
+  .btn_rel{margin: 0 auto; width: 216/@rpx; height: 76/@rpx}
+  /*.a{position: fixed; z-index: 9999999999; top: 0; left: 0; width: 100%; height: 100px; background: #900; color: #fff}*/
+</style>
+
+<template>
+  <!--<text class="test" style="text-align: center; font-size: {{testSize}}rpx; letter-spacing: -1rpx">{{a}}</text>-->
+
+  <view class="out">
+    <head></head>
+    <menu></menu>
+    <menuswiper></menuswiper>
+    <view class="int"></view>
+
+    <authorize></authorize>
+    <view class="int"></view>
+
+    <company></company>
+    <view class="int"></view>
+
+    <server></server>
+    <view class="int"></view>
+
+    <spot :newItemOne.sync="newItemOne" :newItemTwo.sync="newItemTwo"></spot>
+
+    <indexRelated></indexRelated>
+
+    <view class="btn_rel_all" @tap="handleClickRel">
+      <view>联系我们</view>
+      <image class="btn_rel" src="{{relBtn}}"></image>
+    </view>
+
+  </view>
+
+  <zzc hidden="{{zzcShow}}"></zzc>
+
+  <load :loadBtn.sync="loadBtn" :tip.sync="tip"></load>
+
+  <!--<view class="a">{{a}}</view>-->
+  <!--iview类库调用-->
+  <!--<i-toast id="toast"/>-->
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  const base_static = config.static_url.static_base_v1;
+  // const { $Toast } = require('../iviewui/base/index');
+
+  import head from '@/components/indexHead'
+  import menu from '@/components/indexMenu'
+  import menuswiper from '@/components/indexSwiper'
+  import authorize from '@/components/indexAuthorize'
+  import company from '@/components/indexCompany'
+  import server from '@/components/indexServer'
+  import spot from '@/components/indexHotspot'
+  import zzc from '@/components/indexRelation'
+  import indexRelated from '@/components/indexRelated'
+  import load from '@/components/authorize'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '青岛文创信用平台',
+      // usingComponents: {
+      //   "i-toast": "../iviewui/toast/index"
+      // },
+
+    }
+    components = {head, menu, menuswiper, authorize, company, server, spot, zzc, indexRelated, load}
+    mixins = [testMixin]
+    data = {
+      dom_w: '',
+      testSize: 14,
+      a: 'abcdef gf',
+      tag: '',
+      newItemOne: '',
+      newItemTwo: '',
+      loadBtn: false,
+      relBtn: base_static + 'btn_home_contactus.png',
+      zzcShow: true
+    }
+    computed = {}
+    methods = {
+      handleClickRel() {
+        this.zzcShow = false
+        this.$apply()
+      },
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    events = {
+      zzcHide: ()=> {
+        this.zzcShow = true
+        this.$apply()
+      },
+      againLoad: ()=> {
+        this.onShow()
+      }
+    }
+    async onLoad(options) {
+      var that = this
+
+      // var a  = setInterval(()=> {
+      //   that.getDom()
+      //   if (that.dom_w > 120) {
+      //     console.log("超过了")
+      //     that.testSize -= 1
+      //     that.$apply()
+      //     clearInterval(a)
+      //     //结束循环
+      //     // break;
+      //   } else {
+      //     console.log("未达到")
+      //     that.testSize += 1
+      //     that.$apply()
+      //   }
+      //   console.log(that.testSize, '字体大小')
+      // }, 100)
+
+      // $Toast({
+      //   content: '加载中',
+      //   type: 'loading'
+      // });
+      var tag  = options.tag
+      // this.$parent.globalData.tag = tag
+      // this.$parent.globalData.options = options
+
+      // 转发不用在首页授权，到存在表单的页面授权
+      if(tag) {
+        wepy.navigateTo({
+          url: '/pages/' + tag + '?tip=' + options.tip + '&url=' + options.url + '&newsId=' + options.newsId + '&pName=' + options.pName + '&uid=' + options.uid
+        })
+      }
+
+      // 首页的授权现实判断(存在接口的页面均需授权)
+      var loginKey = wepy.getStorage({
+        key: "loginKey"
+      })
+      loginKey.then(res => {
+        if(res.errMsg == "getStorage:ok") {
+          this.loadBtn = true
+
+          this.$apply()
+          console.log("之前来过，在我心里~")
+        }
+      }, () => {
+        this.tag = tag
+        this.loadBtn = false
+        this.$apply()
+        console.log("用户未点击授权哟~")
+      })
+    }
+
+    // 获取节点宽度
+    // async getDom() {
+    //   var that = this
+    //   var query =  wepy.createSelectorQuery();
+    //   query.select('.test').boundingClientRect()
+    //   await query.exec(function (res) {
+    //     var dom_w = res[0].width
+    //     that.dom_w = dom_w
+    //   })
+    // }
+    onShow() {
+      var that = this
+      var json = api.activation_state()
+      json.then(async res=> {
+        var activeTip = res.data.data
+        if(activeTip) {
+          this.$parent.globalData.companyId = activeTip.orgid
+          // 未激活
+          if(activeTip.status == 2) {this.$broadcast('activeNo')}
+          // 激活
+          else if(activeTip.status == 1) {this.$broadcast('active')}
+          // 未审核
+          else if(activeTip.status == 0) {this.$broadcast('unaudited')}
+          this.$apply()
+        }
+      })
+
+      var par = {
+        data: {
+          type: 74
+        }
+      }
+      var par2 = {
+        data: {
+          type: 75
+        }
+      }
+      var json = api.credit_headline(par)
+      json.then(res => {
+        that.newItemOne = res.data.data
+        that.$apply()
+      })
+      var json = api.credit_headline(par2)
+      json.then(res => {
+        that.newItemTwo = res.data.data
+        that.$apply()
+      })
+    }
+  }
+</script>
+
+

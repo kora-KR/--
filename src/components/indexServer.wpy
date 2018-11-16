@@ -1,0 +1,58 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{background: #fff}
+  .server_tip{display: flex; justify-content: space-between; align-items: center; padding: ~'0 30rpx'; box-sizing: border-box; height: ~'92rpx';  background: #fff; border-bottom: @line_border}
+  .server_tip>view:nth-of-type(1){font-size: ~'32rpx'; font-weight: 600}
+  .server_tip .more_icon{position: absolute; z-index: 88; right: 0; top: 50%; transform: translateY(-54%); width: ~'16rpx'; height: ~'24rpx'; opacity: .5}
+  .tip_more{position: relative; width: ~'84rpx';  text-align: left; font-size: ~'26rpx'; color: #999}
+  .tip_more>text{position: relative; top: ~'-1rpx'; color: #999}
+</style>
+
+<template>
+  <view class="all">
+    <view class="server_tip">
+      <view>融资服务</view>
+      <view class="tip_more" @tap="handleClickFinacingMore">
+        <text>更多</text>
+        <image class="more_icon" src="{{moreIcon}}"></image>
+      </view>
+    </view>
+
+    <view>
+      <repeat for="{{pro}}" key="index" index="index" item="item">
+        <serverpro :item.sync="item"></serverpro>
+      </repeat>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  import serverpro from '@/components/common/indexServerPro'
+
+  export default class indexServer extends wepy.component {
+    data = {
+      moreIcon: base_static + 'icon_record_arrow.png',
+      pro: [{img: base_static + 'icon_finance_1.png', txt1: '影视演艺贷', txt2: '广播影视节目制作，创作表演服务，文化经济代理', tip: 7}, {img: base_static + 'icon_finance_2.png', txt1: '创意版权贷', txt2: '新闻、出版、版权、娱乐、创意设计', tip: 8}, {img: base_static + 'icon_finance_3.png', txt1: '文化旅游贷', txt2: '景区游览服务、休闲观光游览服务', tip: 9}]
+    }
+    props = {}
+    components = {serverpro}
+
+    methods = {
+      handleClickFinacingMore() {
+        wepy.navigateTo({
+          url: '/pages/credit?tip=finacing'
+        })
+      }
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

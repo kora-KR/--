@@ -1,0 +1,113 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  view{background: #fff}
+  .grad_icon{margin-right: ~'12rpx'; width: ~'32rpx'; height: ~'32rpx'}
+  .grad_txt{display: flex; justify-content: flex-start; align-items: center; padding: ~'0 30rpx'; box-sizing: border-box; height: ~'100rpx'; font-size: ~'32rpx'; font-weight: 600; border-bottom: @line_border}
+  .news_tip{display: flex; justify-content: space-between; align-items: center; margin: ~'0 auto 50rpx'; width: ~'426rpx'; height: ~'68rpx'; border: ~'2rpx solid #ececf2'; border-radius: ~'8rpx'; overflow: hidden; box-sizing: border-box}
+  .risk{padding: ~'30rpx 30rpx 50rpx'; box-sizing: border-box; background: #fff}
+  .news_tip>view{width: 50%; height: 100%; line-height: ~'64rpx'; font-size: ~'26rpx'; text-align: center; color: #666}
+  .news_item>.news_item_one{margin-top: ~'30rpx'; font-size: ~'30rpx'; font-weight: 600}
+  .news_item>.news_item_two{margin-top: ~'24rpx'; font-size: ~'26rpx'; color: #666}
+  .news_tip>.choice_tip{background: #ececf2; color: #222}
+</style>
+
+<template>
+  <view class="grad_txt">
+    <image class="grad_icon" src="{{iconTip3}}"></image>
+    <text>企业风险评价</text>
+  </view>
+
+  <view class="risk">
+    <view class="news_tip" @tap="handleClickNewTip">
+      <view wx:for="{{newsTip}}" wx:key="{{item}}" data-tip="{{index}}" class="{{(index == tipI)?'choice_tip':''}}">{{item.txt}}</view>
+    </view>
+
+    <view>
+      <view class="news_item" wx:for="{{pro}}" wx:key="{{item}}">
+        <view class="news_item_one"><text style="display: {{(item.content == '暂无')?'none':'inline-block'}}" hidden="{{(item.content == '暂无')?true:false}}">{{index+1}}. </text>{{item.content?item.content:''}}</view>
+        <view class="news_item_two" wx:for="{{item.children}}" wx:key="{{item}}">· {{item.content}}</view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class creditFileRisk extends wepy.component {
+    data = {
+      iconTip3: base_static + 'icon_archives_3.png',
+      tipI: 0,
+      newsTip: [{tip: 'ava', txt: '有利因素'}, {tip: 'focus', txt: '关注信息'}],
+      pro: [],
+      // 有利信息
+      pro1: [],
+      // 关注信息
+      pro2: []
+    }
+    props = {
+      company: {
+        type: Object,
+        twoWay: true
+      }
+    }
+    components = {
+    }
+
+    methods = {
+      handleClickNewTip(e) {
+        var i = e.target.dataset.tip
+        this.tipI = i
+        if(i == 0) {
+          this.pro = this.pro1
+        }
+        else if(i == 1) {
+          this.pro = this.pro2
+        }
+        this.$apply()
+      }
+    }
+
+    onLoad() {
+      var that = this
+      var par = {
+        data: {
+          id: this.$parent.$parent.globalData.companyId,
+          page_no: 1,
+          tag: "RiskScanner"
+        }
+      }
+      var json = api.enterprise_moduledetail(par)
+      json.then(res=> {
+        var factor = res.data.data
+        console.log(factor, factor.RiskScanner, 111)
+        if(factor.RiskScanner) {
+          for(let i = 0; i < factor.RiskScanner.length; i++) {
+            if(factor.RiskScanner[i].type == 2) {
+              that.pro1.push(factor.RiskScanner[i])
+            }
+            else if(factor.RiskScanner[i].type  == 3) {
+              that.pro2.push(factor.RiskScanner[i])
+            }
+          }
+        }
+
+        if((that.pro1.length == 0) || (factor.RiskScanner == null)) {
+          console.log(that.pro1, 8989)
+          that.pro1.push({content: '暂无'})
+        }
+        if((that.pro2.length == 0) || (factor.RiskScanner == null)) {
+          that.pro2.push({content: '暂无'})
+        }
+        that.pro = that.pro1
+        that.$apply()
+      })
+    }
+  }
+
+</script>

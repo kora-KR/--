@@ -1,0 +1,83 @@
+<style src="../styles/resert.css"></style>
+<style lang="less">
+  @import '../styles/common';
+  .out{padding-bottom: ~'56rpx'; box-sizing: border-box}
+  .head_img{width: 100%; height: ~'264rpx'}
+  .int{height: ~'20rpx'; background: @line}
+  .credit_item{background: #fff}
+</style>
+
+<template>
+  <view class="out">
+    <image class="head_img" src="{{headImg}}"></image>
+    <view class="int"></view>
+
+    <view class="credit_item">
+      <repeat for="{{pro}}" key="index" index="index" item="item">
+        <credititem :item.sync="item" :flag.sync="flag"></credititem>
+      </repeat>
+    </view>
+
+    <tip :tip.sync="tipTxt"></tip>
+  </view>
+
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import credititem from '@/components/creditItem'
+  import tip from '@/components/gladTip'
+
+  export default class credit extends wepy.page {
+    config = {
+      navigationBarTitleText: '企业征信服务'
+    }
+    components = {credititem, tip}
+    mixins = [testMixin]
+    data = {
+      loadBtn: false,
+      title: '',
+      tipTxt: '由格兰德信用提供相关服务',
+      flag: 'finacing',
+      headImg: base_static + 'pic_finance_title.png',
+      pro: [{img: base_static + 'icon_finance_1.png', txt1: '影视演艺贷', txt2: '广播影视节目制作、创作表演服务、文化经济代理', url: '7'}, {img: base_static + 'icon_finance_2.png', txt1: '创意版权贷', txt2: '新闻、出版、版权、娱乐、创意设计', url: '8'}, {img: base_static + 'icon_finance_3.png', txt1: '文化旅游贷', txt2: '景区游览服务、休闲观光游览服务', url: '9'}, {img: base_static + 'icon_finance_4.png', txt1: '文创小镇（园区）贷', txt2: '文化产业园区管理', url: '10'}, {img: base_static + 'icon_finance_5.png', txt1: '“一带一路”文化贸易贷', txt2: '文化投资与资产管理、文化贸易代理服务', url: '11'}]
+    }
+    computed = {}
+    methods = {
+      onShareAppMessage() {
+        return {
+          title: this.title,
+          path: '/pages/index?tag=credit&tip=' + this.flag
+        }
+      }
+    }
+    events = {}
+    async onLoad(options) {
+      var tip = options.tip
+      if(tip == 'finacing') {
+        wepy.setNavigationBarTitle({
+          title: '融资服务'
+        })
+        this.tipTxt = '由青岛银行提供相关服务'
+        this.flag = 'finacing'
+        this.title = '青岛银行助力文创，丰富产品满足资金需求'
+        this.headImg = base_static + 'pic_finance_title.png'
+        this.$apply()
+      }
+      else {
+        this.flag = 'credit'
+        this.title = '信用即是资本——一站式企业信用管理服务'
+        this.headImg = base_static + 'pic_report_title.png'
+        this.pro = [{img: base_static + 'icon_report_1.png', txt1: '查企业', txt2: '获取维度丰富的企业信用情况', url: '1'}, {img: base_static + 'icon_report_2.png', txt1: '查司法', txt2: '聚焦目标违法违规等负面记录', url: '2'}, {img: base_static + 'icon_report_3.png', txt1: '查进出口', txt2: '进出口数据及海关评级 助您排查交易风险', url: '3'}, {img: base_static + 'icon_report_4.png', txt1: '关联企业', txt2: '深挖关联企业 防范风险蔓延', url: '4'}, {img: base_static + 'icon_report_5.png', txt1: '高管关联', txt2: '展示高管背景 掌握关联企业', url: '5'}, {img: base_static + 'icon_report_6.png', txt1: '查海外企业', txt2: '216个国家企业信用信息查询11国即时查看', url: '6'}]
+      }
+    }
+    onShow() {}
+  }
+</script>

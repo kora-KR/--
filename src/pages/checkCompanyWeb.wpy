@@ -1,0 +1,44 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  /*@import '../styles/common';*/
+</style>
+
+<template>
+  <web-view src="{{url}}"></web-view><web></web>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+
+  export default class checkCompanyWeb extends wepy.page {
+    config = {
+      navigationBarTitleText: ''
+    }
+    components = {}
+    mixins = [testMixin]
+    data = {
+      url: ''
+    }
+    computed = {}
+    methods = {
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    events = {
+
+    }
+    onLoad(options) {
+      var url = options.tip
+      console.log(url)
+      this.url = url
+      this.$apply()
+    }
+  }
+</script>

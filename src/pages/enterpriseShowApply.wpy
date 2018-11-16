@@ -1,0 +1,156 @@
+<style src="../styles/resert.css"></style>
+<style lang="less">
+  @import '../styles/common';
+  .tip{height: ~'86rpx'; font-size: ~'28rpx'; color: #666; padding: ~'34rpx 30rpx 0'; box-sizing: border-box; background: #f3f3f8}
+  .tip_add{height: ~'60rpx'}
+  .myNews{padding: ~'0 0 0 30rpx'; box-sizing: border-box; background: #fff}
+  .myNews>view{position: relative; left: 0; top: 0; display: flex; justify-content: flex-start; align-items: center; line-height: ~'90rpx'; height: ~'90rpx'}
+  .news{ font-size:~'32rpx';}
+  .news>view{border-bottom: @line_border}
+  .news>view>text{width: ~'180rpx'; color: #222;}
+  .news>view>input{overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ~'480rpx'; color: #999}
+  .newsAdd>view>input{color: #222}
+  .news .border_null{border: 0}
+  .btn{position: fixed; left: 50%; bottom: ~'60rpx'; transform: translateX(-50%); width: 90%; line-height: ~'88rpx'; font-size: ~'34rpx'; color: #fff; background: #e23733; border-radius: ~'8rpx'}
+  .search{position: relative; top: 0; left: 0}
+</style>
+
+<template>
+  <view class="tip">完善企业信息</view>
+  <view class="myNews news newsAdd search">
+    <view class="border_null">
+      <text>企业名称</text>
+      <input focus placeholder-class="phcolor" placeholder='请输入您的企业名称' value='{{inputV}}' @input='inputSearch'/>
+    </view>
+  </view>
+  <view class="tip">填写联系方式</view>
+  <view class="myNews news newsAdd">
+    <view>
+      <text>企业联系人</text>
+      <input placeholder-class="phcolor" placeholder='请输入真实姓名' value="{{myNameV}}" @input='inputName'/>
+    </view>
+    <view class="border_null">
+      <text>联系方式</text>
+      <input type="number" style='color: {{telTip}}' placeholder-class="phcolor" placeholder='请输入您的电话' value="{{telV}}" style="color: {{telC}}" @input='inputTel'/>
+    </view>
+  </view>
+  <button class="submit btn" loading="{{loadingTip}}" @tap='handleClickSubmit' hover="true" hover-class="submitBtn" hover-stay-time="600" style="opacity: {{btnOpacity}}">提交申请</button>
+
+  <formtip :txt.sync="txt"></formtip>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import upload from '@/components/photoUpload'
+  import search from '@/components/activateSearch'
+  import formtip from '@/components/formTip'
+
+  export default class enterpriseShowApply extends wepy.page {
+    config = {
+      navigationBarTitleText: '申请展示'
+    }
+    components = {upload, search, formtip}
+    mixins = [testMixin]
+    data = {
+      txt: '',
+      photos: -1,
+      btnOpacity: .6,
+      scrollTop: 0,
+      scrollShow: true,
+      inputV: '',
+      myNameV: '',
+      telV: '',
+      telC: '',
+      pro: []
+    }
+    computed = {}
+    methods = {
+      inputSearch(e) {
+        this.inputV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+      inputName(e) {
+        this.myNameV = e.detail.value
+        this.$apply()
+        this.btnJudge()
+      },
+      inputTel(e) {
+        this.telV = e.detail.value, this.telC = '#222'
+        this.$apply()
+        this.btnJudge()
+      },
+
+      handleClickSubmit() {
+        var that = this;
+        if (this.myNameV && this.telV && this.inputV) {
+          clearTimeout(a)
+          this.btnOpacity = .6
+          setTimeout(()=> {that.btnOpacity = 1, that.$apply()}, 600)
+          var zztel = /^(13[0-9]|14[5-9]|15[012356789]|166|17[0-8]|18[0-9]|19[8-9])[0-9]{8}$/
+          if (this.telV.length <= 0 || this.telV.length > 11 || this.telV === 0) {
+            this.txt = "请输入正确手机格式"
+            this.telC = '#e23733'
+            this.$apply()
+            var a = setTimeout(()=> {that.txt = '', that.$apply()}, 1500)
+          }
+          else {
+            var par = {
+              data: {
+                orgname: this.inputV,
+                sjhm: this.telV,
+                xm: this.myNameV
+              }
+            }
+            var json = api.apply_show(par)
+            json.then(res=> {
+              console.log(res)
+              wepy.navigateTo({
+                url: '/pages/activateTip?tip=apply'
+              })
+            })
+          }
+        }
+        else {
+        }
+        this.$apply()
+      },
+
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index'
+        }
+      }
+    }
+    btnJudge() {
+      if (this.myNameV != '' && this.inputV != '' && this.telV != '') {this.btnOpacity = 1}
+      else {this.btnOpacity = .6}
+      this.$apply()
+    }
+    events = {
+      clickSearchItem: (e)=> {
+        this.scrollShow = true
+        this.inputV = e.currentTarget.dataset.searchitem
+        this.$apply()
+      },
+      imgAll: (e)=> {
+        this.photos = e
+        this.$apply()
+        this.btnJudge()
+      }
+    }
+    async onLoad() {
+
+    }
+    onShow() {
+    }
+  }
+</script>

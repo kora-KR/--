@@ -1,0 +1,48 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .all{position: relative; display: flex; justify-content: flex-start; align-items: center; padding: ~'0 40rpx'; box-sizing: border-box; height: ~'140rpx'; border-bottom: @line_border}
+  .all>image:nth-of-type(1){margin-right: ~'30rpx'; width: ~'72rpx'; height: ~'72rpx'}
+  .all>image:nth-of-type(2){position: absolute; right: ~'40rpx'; top: 50%; transform: translateY(-50%); width: ~'16rpx'; height: ~'24rpx'}
+  .all>view>view:nth-of-type(1){margin-bottom: ~'16rpx'; font-size: ~'34rpx'; font-weight: 600}
+  .all>view>view:nth-of-type(2){font-size: ~'24rpx'; color: #999}
+</style>
+
+<template>
+ <navigator url="/pages/checkCompany?tip={{item.url}}&flag={{flag}}" class="all">
+   <image src="{{item.img}}"></image>
+   <view>
+     <view>{{item.txt1}}</view>
+     <view>{{item.txt2}}</view>
+   </view>
+   <image src="{{iconImg}}"></image>
+ </navigator>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import config from "@/utils/config.js";
+  const base_static = config.static_url.static_base_v1;
+  import { login_userinfo } from "@/service/loginService.js";
+
+  export default class creditItem extends wepy.component {
+    data = {
+      iconImg: base_static + 'icon_record_arrow.png'
+    }
+    props = {
+      flag: {
+        type: String,
+        twoWay: true
+      }
+    }
+    components = {
+    }
+
+    methods = {
+    }
+
+    onLoad() {
+    }
+  }
+
+</script>

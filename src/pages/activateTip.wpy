@@ -1,0 +1,89 @@
+<style src="../styles/resert.css"></style>
+<style lang="less">
+  @import '../styles/common';
+  view{text-align: center}
+  .all{position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff}
+  .head_img{margin: ~'100rpx auto 60rpx'; width: ~'168rpx'; height: ~'168rpx'}
+  .all>view:nth-of-type(1){font-size: ~'40rpx'; font-weight: 600}
+  .all>view:nth-of-type(2){margin: ~'24rpx auto 80rpx'; width: 78%; line-height: ~'40rpx'; font-size: ~'28rpx'; color: #666}
+  .btn{width: ~'690rpx'; line-height: ~'88rpx'; background: #E23733; color: #fff}
+  .btn_hover{opacity: .8}
+</style>
+
+<template>
+  <view class="all">
+    <image class="head_img" src="{{headImg}}"></image>
+    <view>{{show.txt1}}</view>
+    <view>{{show.txt2}}</view>
+    <button class="btn" hover-class="btn_hover" type="submit" @tap="handleClickBack">
+      {{show.btn}}
+    </button>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  const base_static = config.static_url.static_base_v1;
+
+  export default class activateTip extends wepy.page {
+    config = {
+      navigationBarTitleText: '完善融资需求',
+    }
+    components = {}
+    mixins = [testMixin]
+    data = {
+      headImg: base_static + 'icon_victory_r.png',
+      // 信用激活
+      active: {txt1: '企业激活信息已提交', txt2: '客服审核通过后激活企业信用档案', btn: '确定'},
+      // 激活审核中
+      auditing: {txt1: '正在审核激活申请', txt2: '审核需1-2个工作日，请耐心等待', btn: '确定'},
+      // 申请试用
+      repair: {txt1: '申请已提交', txt2: '业务人员会尽快处理您的申请并及时与您联系，请保持手机通畅', btn: '完成'},
+      // 信用修复
+      trial: {txt1: '企业信用修复申请已提交', txt2: '客服人员会尽快与您联系', btn: '确定'},
+      // 融资提交
+      require: {txt1: '需求提交成功', txt2: '融资顾问会尽快与您联系', btn: '确定'},
+      // 申请展示
+      apply: {txt1: '申请已提交', txt2: '业务人员会尽快处理您的申请并及时与您联系，请保持手机畅通', btn: '完成'},
+      show: '',
+      flag: ''
+    }
+    computed = {}
+    methods = {
+      handleClickBack() {
+        if(this.flag == 'active' || this.flag == 'apply') {
+          wepy.navigateBack({
+            delta: 2
+          })
+        }
+        else {
+          wepy.navigateBack({
+            delta: 3
+          })
+        }
+      },
+      // onShareAppMessage() {
+      //   return {
+      //     title: '青岛文创信用平台',
+      //     path: '/pages/index'
+      //   }
+      // }
+    }
+    events = {}
+    async onLoad(options) {
+      if(options.tip == 'active') {this.flag = 'active', this.show = this.active, wepy.setNavigationBarTitle({title: '企业激活'})}
+      else if(options.tip == 'repair') {this.flag = 'repair', this.show = this.repair, wepy.setNavigationBarTitle({title: '申请试用'})}
+      else if(options.tip == 'require') {this.flag = 'require', this.show = this.require, wepy.setNavigationBarTitle({title: '完善融资需求'})}
+      else if(options.tip == 'trial') {this.flag = 'trial', this.show = this.trial, wepy.setNavigationBarTitle({title: '信用修复'})}
+      else if(options.tip == 'auditing') {this.headImg = base_static + 'icon_wait_r.png', this.flag = 'auditing', this.show = this.auditing, wepy.setNavigationBarTitle({title: '激活审核中'})}
+      else if(options.tip == 'apply') {this.flag = 'apply', this.show = this.apply, wepy.setNavigationBarTitle({title: '申请展示'})}
+      this.$apply()
+    }
+    onShow() {
+    }
+  }
+</script>

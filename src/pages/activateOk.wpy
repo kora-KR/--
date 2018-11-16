@@ -1,0 +1,64 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  image{margin: ~'66rpx auto 0'; width: ~'400rpx'}
+  view{text-align: center}
+  .all{position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff}
+  .head_img{margin: ~'100rpx auto 60rpx'; width: ~'168rpx'; height: ~'168rpx'}
+  .all>view:nth-of-type(1){font-size: ~'40rpx'; font-weight: 600}
+  .all>view:nth-of-type(2){margin: ~'24rpx auto 38rpx'; width: 78%; line-height: ~'40rpx'; font-size: ~'28rpx'; color: #666}
+  .btn{width: ~'690rpx'; line-height: ~'88rpx'; background: #E23733; color: #fff}
+  .btn_hover{opacity: .8}
+</style>
+
+<template>
+  <view class="all">
+    <image src="{{headImg}}" mode="widthFix"></image>
+    <view>企业已成功激活</view>
+    <view>请前往信用档案查看您企业的详细信息</view>
+    <button class="btn" hover-class="btn_hover" type="submit" hover-stay-time="600" @tap='handleClickToCreditFile'>
+      查看信用档案
+    </button>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  export default class activateOk extends wepy.page {
+    config = {
+      navigationBarTitleText: '激活您的企业'
+    }
+    components = {}
+    mixins = [testMixin]
+    data = {
+      headImg: base_static + 'pic_activation_completed.png'
+    }
+    computed = {}
+    methods = {
+      handleClickToCreditFile() {
+        wepy.navigateTo({
+          'url': '/pages/creditFile'
+        })
+      },
+      // onShareAppMessage() {
+      //   return {
+      //     title: '青岛文创信用平台',
+      //     path: '/pages/index'
+      //   }
+      // }
+    }
+    events = {}
+    async onLoad() {
+
+    }
+    onShow() {
+    }
+  }
+</script>

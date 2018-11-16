@@ -1,0 +1,78 @@
+<style src="../styles/resert.css"></style>
+<style lang="less" scoped>
+  @import '../styles/common';
+  .out{padding: ~'30rpx 30rpx 126rpx'; box-sizing: border-box; background: #fff}
+  .all_show{display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap}
+  .nav_out{position: fixed; bottom: 0; left: 0; width: 100%; height: ~'96rpx'; background: #fff}
+  .btn{position: absolute; z-index: 999; bottom: 0; left: 0; width: 100%; line-height: ~'96rpx'; font-size: ~'34rpx'; color: #fff; background: @line_gradient; text-align: center}
+  .btn_hover{opacity: .8}
+</style>
+
+<template>
+  <view class="out">
+    <view class="all_show">
+      <repeat for="{{pro}}" key="index" index="index" item="item">
+        <showItem :item.sync="item" :index.sync='index'></showItem>
+      </repeat>
+    </view>
+    <view class="nav_out">
+      <navigator url="/pages/enterpriseShowApply" class="btn" hover-class="btn_hover">申请展示</navigator>
+    </view>
+  </view>
+
+  <load :loadBtn.sync="loadBtn"></load>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import testMixin from '../mixins/test'
+  import config from "@/utils/config.js";
+  import api from '@/utils/api';
+  import NumberAnimate from "@/utils/NumberAnimate";
+  const base_static = config.static_url.static_base_v1;
+
+  import showItem from '@/components/enterpriseShowItem'
+  import load from '@/components/authorize'
+
+  export default class enterpriseShow extends wepy.page {
+    config = {
+      navigationBarTitleText: '文创企业展示'
+    }
+    components = {showItem, load}
+    mixins = [testMixin]
+    data = {
+      loadBtn: false,
+      pro: [{img: base_static + 'company3_2.png', txt: '青岛奕雅思文化创意有限公司'}, {img: base_static + 'company6_0.jpg', txt: '北大青岛1898咖啡馆'}, {img: base_static + 'company5_0.jpeg', txt: '青岛千禧合生文化产业顾问有限公司'}, {img: base_static + 'company2_0.jpeg', txt: '青岛鲸致互动娱乐有限公司'}, {img: base_static + 'company1_0.png', txt: '青岛佳熹纪念币设计股份有限公司'}, {img: base_static + 'company4_0.jpg', txt: '青岛超逸国际旅行社股份有限公司'}, {img: base_static + 'company7_0.png', txt: '青岛双福文化传播有限公司'}, {img: base_static + 'company8_0.jpg', txt: '青岛黄海电影股份有限公司'},  {img: base_static + 'company9_0.jpg', txt: '青岛品薇实业集团有限公司'},  {img: base_static + 'company10_0.png', txt: '1907光影俱乐部'} ]
+    }
+    computed = {}
+    methods = {
+      onShareAppMessage() {
+        return {
+          title: '青岛文创信用平台',
+          path: '/pages/index?tag=enterpriseShow'
+        }
+      }
+    }
+    events = {}
+    async onLoad() {
+      var loginKey = wepy.getStorage({
+        key: "loginKey"
+      })
+      loginKey.then(res => {
+        if(res.errMsg == "getStorage:ok") {
+          this.loadBtn = true
+          this.$apply()
+          console.log("之前来过，在我心里~")
+        }
+      }, () => {
+        this.loadBtn = false
+        this.$apply()
+        console.log("用户未点击授权哟~")
+      })
+
+    }
+    onShow() {
+    }
+  }
+</script>
